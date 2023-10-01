@@ -4,7 +4,7 @@ import (
 	"github.com/AxelanO7/villa-manis-backend-web-go/database"
 	"github.com/AxelanO7/villa-manis-backend-web-go/model"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 )
 
 // Create a user
@@ -46,9 +46,9 @@ func GetSingleUser(c *fiber.Ctx) error {
 	var user model.User
 	// find single user in the database by id
 	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
-	}
+	// if user.ID == uuid.Nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	// }
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "User Found", "data": user})
 }
 
@@ -63,15 +63,15 @@ func UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	// find single user in the database by id
 	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
-	}
+	// if user.ID == uuid.Nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	// }
 	var updateUserData updateUser
 	err := c.BodyParser(&updateUserData)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
-	user.Username = updateUserData.Username
+	// user.Username = updateUserData.Username
 	// Save the Changes
 	db.Save(&user)
 	// Return the updated user
@@ -86,9 +86,9 @@ func DeleteUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	// find single user in the database by id
 	db.Find(&user, "id = ?", id)
-	if user.ID == uuid.Nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
-	}
+	// if user.ID == uuid.Nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "User not found", "data": nil})
+	// }
 	err := db.Delete(&user, "id = ?", id).Error
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Failed to delete user", "data": nil})

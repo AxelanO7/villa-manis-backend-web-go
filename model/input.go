@@ -7,11 +7,10 @@ import (
 // Input struct
 type Input struct {
 	gorm.Model
-	IdInput int    `json:"id_input"`
-	NoInput string `json:"no_input"`
-	Date    string `json:"date_input"`
-	// todo : status_input
-	Status string `json:"status_input"`
+	IdInput     int    `json:"id_input"`
+	NoInput     string `json:"no_input"`
+	DateInput   string `json:"date_input"`
+	StatusInput string `json:"status_input"`
 }
 
 // Inputs struct
