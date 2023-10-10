@@ -7,15 +7,16 @@ import (
 // General Cart struct
 type DetailJournal struct {
 	gorm.Model
-	IdDetailJournal    int            `json:"id_detail_journal"`
-	IdGeneralJournal   GeneralJournal `gorm:"foreignKey:IdGeneralJournal"`
 	JournalInformation string         `json:"journal_information"`
 	RefJournal         string         `json:"ref_journal"`
-	IdAccount          int            `json:"id_account"`
-	Debit              string         `json:"debit"`
-	Credit             string         `json:"credit"`
+	Debit              int            `json:"debit"`
+	Credit             int            `json:"credit"`
 	DateTransaction    string         `json:"date_transaction"`
-	StatusPost         string         `json:"status_post"`
+	StatusPost         int            `json:"status_post"`
+	IdGeneralJournal   int            `json:"id_general_journal"`
+	GeneralJournal     GeneralJournal `gorm:"foreignKey:IdGeneralJournal" json:"general_journal"`
+	IdAccount          int            `json:"id_account"`
+	Account            Account        `gorm:"foreignKey:IdAccount" json:"account"`
 }
 
 // General Carts struct

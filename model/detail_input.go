@@ -7,15 +7,15 @@ import (
 // DetailInput struct
 type DetailInput struct {
 	gorm.Model
-	IdDetailInput int `json:"id_detail_input"`
-	// NoInput          string `json:"no_input"`
-	NoInput          Input   `gorm:"foreignKey:NoInput"`
-	IdAccount        Account `gorm:"foreignKey:IdAccount"`
 	InputInformation string  `json:"input_information"`
 	Quantity         int     `json:"quantity"`
 	TotalPrice       int     `json:"total_price"`
-	StatusCart       string  `json:"status_cart"`
+	StatusCart       int     `json:"status_cart"`
 	InputDate        string  `json:"input_date"`
+	IdInput          int     `json:"id_input"`
+	Input            Input   `gorm:"foreignKey:IdInput" json:"input"`
+	IdAccount        int     `json:"id_account"`
+	Account          Account `gorm:"foreignKey:IdAccount" json:"account"`
 }
 
 // DetailInputs struct

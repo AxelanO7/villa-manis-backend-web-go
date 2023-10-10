@@ -9,13 +9,12 @@ import (
 type User struct {
 	gorm.Model
 	// IdUser       uuid.UUID `gorm:"type:uuid;"`
-	IdUser   string `json:"id_user"`
+	// IdUser   int    `json:"id_user" gorm:"primaryKey;autoIncrement:true"`
 	Name     string `json:"name_user"`
 	Username string `json:"username"`
-	// Email    string `json:"email"`
 	Password string `json:"password"`
 	Photo    string `json:"photo"`
-	Level    string `json:"level"`
+	Level    int    `json:"level"`
 }
 
 // Users struct

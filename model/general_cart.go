@@ -7,11 +7,12 @@ import (
 // General Cart struct
 type GeneralCart struct {
 	gorm.Model
-	IdGeneralCart int     `json:"id_cart"`
-	IdAccount     Account `gorm:"foreignKey:IdAccount"`
-	Cash          string  `json:"cash"`
-	Debit         string  `json:"debit"`
-	Credit        string  `json:"credit"`
+	// IdGeneralCart int     `json:"id_cart" gorm:"primaryKey autoIncrement"`
+	Cash      string  `json:"cash"`
+	Debit     int     `json:"debit"`
+	Credit    int     `json:"credit"`
+	IdAccount int     `json:"id_account"`
+	Account   Account `gorm:"foreignKey:IdAccount" json:"account"`
 }
 
 // General Carts struct
