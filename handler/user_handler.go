@@ -39,7 +39,9 @@ func GetAllUsers(c *fiber.Ctx) error {
 	db := database.DB.Db
 	users := []model.User{}
 	// find all users in the database
-	db.Find(users)
+	if err := db.Find(&users).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Users not found", "data": nil})
+	}
 	// if no user found, return an error
 	if len(users) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Users not found", "data": nil})
@@ -83,7 +85,7 @@ func UpdateUser(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "users Found", "data": user})
 }
 
-// delete user
+// delete a user in db
 func DeleteUser(c *fiber.Ctx) error {
 	db := database.DB.Db
 	user := new(model.User)

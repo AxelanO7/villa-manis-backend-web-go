@@ -39,7 +39,9 @@ func GetAllGeneralJournals(c *fiber.Ctx) error {
 	db := database.DB.Db
 	generalJournals := []model.GeneralJournal{}
 	// find all general journals in the database
-	db.Find(generalJournals)
+	if err := db.Find(&generalJournals).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "General Journals not found", "data": nil})
+	}
 	// if no general journal found, return an error
 	if len(generalJournals) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "General Journals not found", "data": nil})

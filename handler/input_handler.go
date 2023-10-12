@@ -39,7 +39,9 @@ func GetAllInputs(c *fiber.Ctx) error {
 	db := database.DB.Db
 	inputs := []model.Input{}
 	// find all inputs in the database
-	db.Find(inputs)
+	if err := db.Find(&inputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Inputs not found", "data": nil})
+	}
 	// if no input found, return an error
 	if len(inputs) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Inputs not found", "data": nil})

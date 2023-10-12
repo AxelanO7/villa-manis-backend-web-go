@@ -39,7 +39,9 @@ func GetAllOutputs(c *fiber.Ctx) error {
 	db := database.DB.Db
 	outputs := []model.Output{}
 	// find all outputs in the database
-	db.Find(outputs)
+	if err := db.Find(&outputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Outputs not found", "data": nil})
+	}
 	// if no output found, return an error
 	if len(outputs) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Outputs not found", "data": nil})
@@ -48,7 +50,7 @@ func GetAllOutputs(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Outputs Found", "data": outputs})
 }
 
-// get singleOutput from db
+// get single output from db
 func GetSingleOutput(c *fiber.Ctx) error {
 	output := new(model.Output)
 	// get id params

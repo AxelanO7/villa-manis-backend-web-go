@@ -43,12 +43,14 @@ func CreateAccount(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "Account has created", "data": account})
 }
 
-// get all Accounts from db
+// get all accounts from db
 func GetAllAccounts(c *fiber.Ctx) error {
 	db := database.DB.Db
 	accounts := []model.Account{}
 	// find all accounts in the database
-	db.Find(accounts)
+	if err := db.Find(&accounts).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
+	}
 	// if no account found, return an error
 	if len(accounts) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
@@ -60,6 +62,7 @@ func GetAllAccounts(c *fiber.Ctx) error {
 		if err := FindCategoryByID(fmt.Sprint(account.IdCategory), category); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
 		}
+		// assign category to account
 		account.Category = *category
 		responseAccounts = append(responseAccounts, account)
 	}
@@ -67,7 +70,7 @@ func GetAllAccounts(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Accounts Found", "data": responseAccounts})
 }
 
-// get singleAccount from db
+// get single account from db
 func GetSingleAccount(c *fiber.Ctx) error {
 	account := new(model.Account)
 	category := new(model.Category)
@@ -116,7 +119,7 @@ func UpdateAccount(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Account has updated", "data": account})
 }
 
-// delete account
+// delete a account in db
 func DeleteAccount(c *fiber.Ctx) error {
 	db := database.DB.Db
 	account := new(model.Account)

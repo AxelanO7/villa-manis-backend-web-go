@@ -39,7 +39,9 @@ func GetAllCategories(c *fiber.Ctx) error {
 	db := database.DB.Db
 	categories := []model.Category{}
 	// find all categories in the database
-	db.Find(categories)
+	if err := db.Find(&categories).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories not found", "data": nil})
+	}
 	// if no category found, return an error
 	if len(categories) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories not found", "data": nil})
