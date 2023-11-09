@@ -63,4 +63,9 @@ func SetupRoutes(app *fiber.App) {
 	generalJournal.Post("/", handler.CreateGeneralJournal)
 	generalJournal.Put("/:id", handler.UpdateGeneralJournal)
 	generalJournal.Delete("/:id", handler.DeleteGeneralJournal)
+
+	// login
+	login := api.Group("/login")
+	// routes
+	login.Post("/", handler.Login)
 }
