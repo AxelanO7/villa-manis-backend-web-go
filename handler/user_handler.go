@@ -124,7 +124,7 @@ func Login(c *fiber.Ctx) error {
 	}
 	// find single login in the database by ids
 	if err := findLoginByUsernameAndPassword(login.Username, login.Password, login); err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Username or Password is wrong"})
+		return c.Status(422).JSON(fiber.Map{"status": "error", "message": "Username or Password is wrong"})
 	}
 	// return the login
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Login Success"})
