@@ -88,7 +88,7 @@ func GetAllDetailOutputs(c *fiber.Ctx) error {
 }
 
 // get a detail output by id
-func GetDetailOutputById(c *fiber.Ctx) error {
+func GetSingleDetailOutput(c *fiber.Ctx) error {
 	detailOutput := new(model.DetailOutput)
 	account := new(model.Account)
 	output := new(model.Output)
@@ -115,7 +115,7 @@ func GetDetailOutputById(c *fiber.Ctx) error {
 }
 
 // update a detail output by id
-func UpdateDetailOutputById(c *fiber.Ctx) error {
+func UpdateDetailOutput(c *fiber.Ctx) error {
 	db := database.DB.Db
 	detailOutput := new(model.DetailOutput)
 	account := new(model.Account)
@@ -151,7 +151,7 @@ func UpdateDetailOutputById(c *fiber.Ctx) error {
 }
 
 // delete a detail output by id
-func DeleteDetailOutputById(c *fiber.Ctx) error {
+func DeleteDetailOutput(c *fiber.Ctx) error {
 	db := database.DB.Db
 	detailOutput := new(model.DetailOutput)
 	// get id params
@@ -166,4 +166,36 @@ func DeleteDetailOutputById(c *fiber.Ctx) error {
 	}
 	// return the deleted detail output
 	return c.JSON(fiber.Map{"status": "success", "message": "Detail output successfully deleted", "data": detailOutput})
+}
+
+// create multiple detail outputs
+func CreateMultipleDetailOutputs(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailOutputs := new([]model.DetailOutput)
+	// store the body in the detail outputs and return error if encountereds
+	if err := c.BodyParser(detailOutputs); err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
+	}
+	for _, detailOutput := range *detailOutputs {
+		output := new(model.Output)
+		account := new(model.Account)
+		// find output in the database by id
+		if err := findOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
+		}
+		// find account in the database by id
+		if err := findAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign output to detail output
+		detailOutput.Output = *output
+		// assign account to detail output
+		detailOutput.Account = *account
+		// create detail output
+		if err := db.Create(&detailOutput).Error; err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create detail output", "data": err})
+		}
+	}
+	// return the created detail outputs
+	return c.JSON(fiber.Map{"status": "success", "message": "Detail outputs successfully created", "data": detailOutputs})
 }

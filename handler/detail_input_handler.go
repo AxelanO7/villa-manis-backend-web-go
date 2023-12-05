@@ -167,3 +167,35 @@ func DeleteDetailInput(c *fiber.Ctx) error {
 	// return the deleted detail input
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Detail input has deleted", "data": detailInput})
 }
+
+// create multiple detail inputs
+func CreateMultipleDetailInputs(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailInputs := new([]model.DetailInput)
+	// store the body in the detail input and return error if encountereds
+	if err := c.BodyParser(detailInputs); err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
+	}
+	for _, detailInput := range *detailInputs {
+		input := new(model.Input)
+		account := new(model.Account)
+		// find input in the database by id
+		if err := findInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
+		}
+		// find account in the database by id
+		if err := findAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign input to detail input
+		detailInput.Input = *input
+		// assign account to detail input
+		detailInput.Account = *account
+		// create detail input
+		if err := db.Create(&detailInput).Error; err != nil {
+			return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not create detail input", "data": err})
+		}
+	}
+	// return the created detail input
+	return c.Status(201).JSON(fiber.Map{"status": "success", "message": "Detail input has created", "data": detailInputs})
+}
