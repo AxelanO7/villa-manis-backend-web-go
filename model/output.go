@@ -9,7 +9,7 @@ type Output struct {
 	gorm.Model
 	NoOutput     string `json:"no_output"`
 	DateOutput   string `json:"date_output"`
-	StatusOutput int    `json:"status_output"`
+	StatusOutput string `json:"status_output"`
 }
 
 // Outputs struct
