@@ -136,3 +136,89 @@ func DeleteAccount(c *fiber.Ctx) error {
 	// return deleted account
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Account deleted"})
 }
+
+// get all input & output by date
+func GetInputOutputByDate(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	// get date params
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+	// find all detail input in the database by date
+	if err := db.Find(&detailInput, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	}
+	// find all detail output in the database by date
+	if err := db.Find(&detailOutput, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	}
+	// if no detail input & output found, return an error
+	if len(detailInput) == 0 && len(detailOutput) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+	// return detail input & output
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"detail_input": detailInput, "detail_output": detailOutput}})
+}
+
+// get all input & output in db
+func GetAllInputOutput(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	// find all detail input in the database
+	if err := db.Find(&detailInput).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	}
+	// find all detail output in the database
+	if err := db.Find(&detailOutput).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	}
+	// if no detail input & output found, return an error
+	if len(detailInput) == 0 && len(detailOutput) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+	// return detail input & output
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"detail_input": detailInput, "detail_output": detailOutput}})
+}
+
+// get all input & output and group by account and category in db
+func GetAllInputOutputGroupByAccountAndCategory(c *fiber.Ctx) error {
+	db := database.DB.Db
+	categories := []model.Category{}
+	accounts := []model.Account{}
+
+	// find all categories in the database
+	if err := db.Find(&categories).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories not found", "data": nil})
+	}
+	// find all accounts in the database
+	if err := db.Find(&accounts).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
+	}
+	// if no category & account found, return an error
+	if len(categories) == 0 && len(accounts) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories & Accounts not found", "data": nil})
+	}
+	// find detail input & output by category & account
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	for _, category := range categories {
+		for _, account := range accounts {
+			// find all detail input in the database by category & account
+			if err := db.Find(&detailInput, "id_category = ? AND id_account = ?", category.ID, account.ID).Error; err != nil {
+				return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+			}
+			// find all detail output in the database by category & account
+			if err := db.Find(&detailOutput, "id_category = ? AND id_account = ?", category.ID, account.ID).Error; err != nil {
+				return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+			}
+		}
+	}
+	// if no detail input & output found, return an error
+	if len(detailInput) == 0 && len(detailOutput) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+	// return detail input & output
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"detail_input": detailInput, "detail_output": detailOutput}})
+}

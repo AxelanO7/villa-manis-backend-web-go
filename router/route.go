@@ -94,4 +94,15 @@ func SetupRoutes(app *fiber.App) {
 	login := api.Group("/login")
 	// routes
 	login.Post("/", handler.Login)
+
+	// transactions
+	transactions := api.Group("/transactions")
+	// routes
+	transactions.Get("/", handler.GetAllInputOutput)
+
+	transactions.Get("/group", handler.GetAllInputOutputGroupByAccountAndCategory)
+
+	date := api.Group("/date")
+	// routes
+	date.Get("/", handler.GetInputOutputByDate)
 }
