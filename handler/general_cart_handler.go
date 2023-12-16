@@ -30,7 +30,7 @@ func CreateGeneralCart(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign account to cart
@@ -59,7 +59,7 @@ func GetAllGeneralCarts(c *fiber.Ctx) error {
 	for _, cart := range carts {
 		account := new(model.Account)
 		// find account in the database by id
-		if err := findAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
+		if err := FindAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// assign account to cart
@@ -81,7 +81,7 @@ func GetSingleGeneralCart(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Cart not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign account to cart
@@ -106,7 +106,7 @@ func UpdateGeneralCart(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(cart.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign account to cart

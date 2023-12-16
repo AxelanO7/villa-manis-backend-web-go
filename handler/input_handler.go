@@ -7,7 +7,7 @@ import (
 )
 
 // find input by id
-func findInputById(id string, input *model.Input) error {
+func FindInputById(id string, input *model.Input) error {
 	db := database.DB.Db
 	// find single input in the database by id
 	db.Find(&input, "id = ?", id)
@@ -56,7 +56,7 @@ func GetSingleInput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single input in the database by id
-	if err := findInputById(id, input); err != nil {
+	if err := FindInputById(id, input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// return input
@@ -70,7 +70,7 @@ func UpdateInput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single input in the database by id
-	if err := findInputById(id, input); err != nil {
+	if err := FindInputById(id, input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// store the body in the input and return error if encountered
@@ -92,7 +92,7 @@ func DeleteInput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single input in the database by id
-	if err := findInputById(id, input); err != nil {
+	if err := FindInputById(id, input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// delete input

@@ -31,11 +31,11 @@ func CreateDetailInput(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find input in the database by id
-	if err := findInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
+	if err := FindInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign input to detail input
@@ -64,21 +64,30 @@ func GetAllDetailInputs(c *fiber.Ctx) error {
 	}
 	responseDetailInputs := []model.DetailInput{}
 	for _, detailInput := range detailInputs {
+		category := new(model.Category)
 		account := new(model.Account)
 		input := new(model.Input)
 		// convert id to string
+		idCategory := fmt.Sprint(detailInput.IdCategory)
 		idAccount := fmt.Sprint(detailInput.IdAccount)
 		idInput := fmt.Sprint(detailInput.IdInput)
+		// find category in the database by id
+		if err := FindCategoryByID(idCategory, category); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+		}
 		// find account in the database by id
-		if err := findAccountById(idAccount, account); err != nil {
+		if err := FindAccountById(idAccount, account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// find input in the database by id
-		if err := findInputById(idInput, input); err != nil {
+		if err := FindInputById(idInput, input); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 		}
+		// assign category to detail input
+		detailInput.Category = *category
 		// assign account to detail input
 		detailInput.Account = *account
+		detailInput.Account.Category = *category
 		// assign input to detail input
 		detailInput.Input = *input
 		responseDetailInputs = append(responseDetailInputs, detailInput)
@@ -99,11 +108,11 @@ func GetSingleDetailInput(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail input not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find input in the database by id
-	if err := findInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
+	if err := FindInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// assign account to detail input
@@ -131,11 +140,11 @@ func UpdateDetailInput(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find input in the database by id
-	if err := findInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
+	if err := FindInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
 	// assign account to detail input
@@ -180,11 +189,11 @@ func CreateMultipleDetailInputs(c *fiber.Ctx) error {
 		input := new(model.Input)
 		account := new(model.Account)
 		// find input in the database by id
-		if err := findInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
+		if err := FindInputById(fmt.Sprint(detailInput.IdInput), input); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 		}
 		// find account in the database by id
-		if err := findAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
+		if err := FindAccountById(fmt.Sprint(detailInput.IdAccount), account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// assign input to detail input

@@ -7,7 +7,7 @@ import (
 )
 
 // find output by id
-func findOutputById(id string, output *model.Output) error {
+func FindOutputById(id string, output *model.Output) error {
 	db := database.DB.Db
 	// find single output in the database by id
 	db.Find(&output, "id = ?", id)
@@ -56,7 +56,7 @@ func GetSingleOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single output in the database by id
-	if err := findOutputById(id, output); err != nil {
+	if err := FindOutputById(id, output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// return output
@@ -70,7 +70,7 @@ func UpdateOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single output in the database by id
-	if err := findOutputById(id, output); err != nil {
+	if err := FindOutputById(id, output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// store the body in the output and return error if encountered
@@ -92,7 +92,7 @@ func DeleteOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single output in the database by id
-	if err := findOutputById(id, output); err != nil {
+	if err := FindOutputById(id, output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// delete output

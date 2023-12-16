@@ -31,11 +31,11 @@ func CreateDetailOutput(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find output in the database by id
-	if err := findOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+	if err := FindOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign output to detail output
@@ -70,11 +70,11 @@ func GetAllDetailOutputs(c *fiber.Ctx) error {
 		idAccount := fmt.Sprint(detailOutput.IdAccount)
 		idOutput := fmt.Sprint(detailOutput.IdOutput)
 		// find account in the database by id
-		if err := findAccountById(idAccount, account); err != nil {
+		if err := FindAccountById(idAccount, account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// find output in the database by id
-		if err := findOutputById(idOutput, output); err != nil {
+		if err := FindOutputById(idOutput, output); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 		}
 		// assign account to detail output
@@ -99,11 +99,11 @@ func GetSingleDetailOutput(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail output not found", "data": nil})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find output in the database by id
-	if err := findOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+	if err := FindOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// assign account to detail output
@@ -131,11 +131,11 @@ func UpdateDetailOutput(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find output in the database by id
-	if err := findOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+	if err := FindOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
 	// assign account to detail output
@@ -180,11 +180,11 @@ func CreateMultipleDetailOutputs(c *fiber.Ctx) error {
 		output := new(model.Output)
 		account := new(model.Account)
 		// find output in the database by id
-		if err := findOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+		if err := FindOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 		}
 		// find account in the database by id
-		if err := findAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+		if err := FindAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// assign output to detail output

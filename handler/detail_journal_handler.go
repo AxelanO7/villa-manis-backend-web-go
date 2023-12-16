@@ -35,7 +35,7 @@ func CreateDetailJournal(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Journal not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// assign journal to detail journal
@@ -70,7 +70,7 @@ func GetAllDetailJournals(c *fiber.Ctx) error {
 		idAccount := fmt.Sprint(detailJournal.IdAccount)
 		idGeneralJournal := fmt.Sprint(detailJournal.IdGeneralJournal)
 		// find account in the database by id
-		if err := findAccountById(idAccount, account); err != nil {
+		if err := FindAccountById(idAccount, account); err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// find general journal in the database by id
@@ -99,7 +99,7 @@ func GetSingleDetailJournal(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail journal not found"})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find general journal in the database by id
@@ -131,7 +131,7 @@ func UpdateDetailJournal(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
 	}
 	// find account in the database by id
-	if err := findAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
+	if err := FindAccountById(fmt.Sprint(detailJournal.IdAccount), account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
 	// find general journal in the database by id
