@@ -209,6 +209,10 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 
 	groupCategorys := []GroupCategory{}
 
+	// get date params
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
 	// find all categories in the database
 	if err := db.Find(&categories).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories not found", "data": nil})
@@ -232,14 +236,35 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 			}
 		}
 	}
-	// find all detail input in the database
-	if err := db.Find(&detailInputs).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	// // find all detail input in the database
+	// if err := db.Find(&detailInputs).Error; err != nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	// }
+	// // find all detail output in the database
+	// if err := db.Find(&detailOutputs).Error; err != nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	// }
+	if startDate == "" || endDate == "" {
+		// find all detail input in the database
+		if err := db.Find(&detailInputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
 	}
-	// find all detail output in the database
-	if err := db.Find(&detailOutputs).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	if startDate != "" && endDate != "" {
+		// find all detail input in the database by date
+		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database by date
+		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
 	}
+
 	for _, typeCategory := range typeCategory {
 		groupCategory := GroupCategory{}
 		groupCategory.NamaCategory = typeCategory
