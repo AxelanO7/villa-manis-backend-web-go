@@ -201,8 +201,8 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 	categories := []model.Category{}
 	accounts := []model.Account{}
 
-	typeAccount := []string{}
-	typeCategory := []string{}
+	typeCategories := []model.Category{}
+	typeAccount := []model.Account{}
 
 	detailInputs := []model.DetailInput{}
 	detailOutputs := []model.DetailOutput{}
@@ -225,25 +225,22 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 	if len(categories) == 0 && len(accounts) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categories & Accounts not found", "data": nil})
 	}
+	categoryString := []string{}
+	accountString := []string{}
 	// find all type account & category
 	for _, category := range categories {
 		for _, account := range accounts {
-			if !slices.Contains(typeCategory, fmt.Sprint(category.NameCategory)) {
-				typeCategory = append(typeCategory, fmt.Sprint(category.NameCategory))
+			if !slices.Contains(categoryString, fmt.Sprint(category.NameCategory)) {
+				categoryString = append(categoryString, fmt.Sprint(category.NameCategory))
+				typeCategories = append(typeCategories, category)
 			}
-			if !slices.Contains(typeAccount, fmt.Sprint(account.NameAccount)) {
-				typeAccount = append(typeAccount, fmt.Sprint(account.NameAccount))
+			if !slices.Contains(accountString, fmt.Sprint(account.NameAccount)) {
+				accountString = append(accountString, fmt.Sprint(account.NameAccount))
+				typeAccount = append(typeAccount, account)
 			}
 		}
 	}
-	// // find all detail input in the database
-	// if err := db.Find(&detailInputs).Error; err != nil {
-	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
-	// }
-	// // find all detail output in the database
-	// if err := db.Find(&detailOutputs).Error; err != nil {
-	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
-	// }
+
 	if startDate == "" || endDate == "" {
 		// find all detail input in the database
 		if err := db.Find(&detailInputs).Error; err != nil {
@@ -265,87 +262,97 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 		}
 	}
 
-	for _, typeCategory := range typeCategory {
+	for _, typeCategory := range typeCategories {
 		groupCategory := GroupCategory{}
-		groupCategory.NamaCategory = typeCategory
+		groupCategory.NamaCategory = typeCategory.NameCategory
 		groupCategory.TotalDebit = 0
 		groupCategory.TotalCredit = 0
 		for _, typeAccount := range typeAccount {
-			groupAccount := GroupAccount{}
-			groupAccount.NamaAccount = typeAccount
-			groupAccount.Debit = 0
-			groupAccount.Credit = 0
-			groupAccount.DetailInput = []model.DetailInput{}
-			groupAccount.DetailOutput = []model.DetailOutput{}
-			for _, detailInput := range detailInputs {
-				category := new(model.Category)
-				account := new(model.Account)
-				input := new(model.Input)
-				// convert id to string
-				idCategory := fmt.Sprint(detailInput.IdCategory)
-				idAccount := fmt.Sprint(detailInput.IdAccount)
-				idInput := fmt.Sprint(detailInput.IdInput)
-				// find category in the database by id
-				if err := FindCategoryByID(idCategory, category); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+			if typeAccount.IdCategory == int(typeCategory.ID) {
+				groupAccount := GroupAccount{}
+				groupAccount.NamaAccount = typeAccount.NameAccount
+				groupAccount.Debit = 0
+				groupAccount.Credit = 0
+				groupAccount.DetailInput = []model.DetailInput{}
+				groupAccount.DetailOutput = []model.DetailOutput{}
+				for _, detailInput := range detailInputs {
+					if detailInput.IdAccount == int(typeAccount.ID) && detailInput.IdCategory == int(typeCategory.ID) {
+						category := new(model.Category)
+						account := new(model.Account)
+						input := new(model.Input)
+						// convert id to string
+						idCategory := fmt.Sprint(detailInput.IdCategory)
+						idAccount := fmt.Sprint(detailInput.IdAccount)
+						idInput := fmt.Sprint(detailInput.IdInput)
+						// find category in the database by id
+						if err := FindCategoryByID(idCategory, category); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+						}
+						// find account in the database by id
+						if err := FindAccountById(idAccount, account); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+						}
+						// find input in the database by id
+						if err := FindInputById(idInput, input); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
+						}
+						// assign category to detail input
+						detailInput.Category = *category
+						// assign account to detail input
+						detailInput.Account = *account
+						detailInput.Account.Category = *category
+						// assign input to detail input
+						detailInput.Input = *input
+						if detailInput.IdCategory == int(typeCategory.ID) && detailInput.IdAccount == int(typeAccount.ID) {
+							groupAccount.Debit += float64(detailInput.TotalPrice)
+							groupCategory.TotalDebit += float64(detailInput.TotalPrice)
+						}
+						groupAccount.DetailInput = append(groupAccount.DetailInput, detailInput)
+					}
 				}
-				// find account in the database by id
-				if err := FindAccountById(idAccount, account); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+				for _, detailOutput := range detailOutputs {
+					if detailOutput.IdAccount == int(typeAccount.ID) && detailOutput.IdCategory == int(typeCategory.ID) {
+						category := new(model.Category)
+						account := new(model.Account)
+						output := new(model.Output)
+						// convert id to string
+						idCategory := fmt.Sprint(detailOutput.IdCategory)
+						idAccount := fmt.Sprint(detailOutput.IdAccount)
+						idOutput := fmt.Sprint(detailOutput.IdOutput)
+						// find category in the database by id
+						if err := FindCategoryByID(idCategory, category); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+						}
+						// find account in the database by id
+						if err := FindAccountById(idAccount, account); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+						}
+						// find input in the database by id
+						if err := FindOutputById(idOutput, output); err != nil {
+							return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
+						}
+						// assign category to detail input
+						detailOutput.Category = *category
+						// assign account to detail input
+						detailOutput.Account = *account
+						detailOutput.Account.Category = *category
+						// assign input to detail input
+						detailOutput.Output = *output
+						if detailOutput.IdCategory == int(typeCategory.ID) && detailOutput.IdAccount == int(typeAccount.ID) {
+							groupAccount.Credit += float64(detailOutput.TotalPrice)
+							groupCategory.TotalCredit += float64(detailOutput.TotalPrice)
+						}
+						groupAccount.DetailOutput = append(groupAccount.DetailOutput, detailOutput)
+					}
 				}
-				// find input in the database by id
-				if err := FindInputById(idInput, input); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
-				}
-				// assign category to detail input
-				detailInput.Category = *category
-				// assign account to detail input
-				detailInput.Account = *account
-				detailInput.Account.Category = *category
-				// assign input to detail input
-				detailInput.Input = *input
-				if detailInput.Account.NameAccount == typeAccount && detailInput.Category.NameCategory == typeCategory {
-					groupAccount.Debit += float64(detailInput.TotalPrice)
-					groupCategory.TotalDebit += float64(detailInput.TotalPrice)
-				}
-				groupAccount.DetailInput = append(groupAccount.DetailInput, detailInput)
+				groupCategory.Accounts = append(groupCategory.Accounts, groupAccount)
 			}
-			for _, detailOutput := range detailOutputs {
-				category := new(model.Category)
-				account := new(model.Account)
-				output := new(model.Output)
-				// convert id to string
-				idCategory := fmt.Sprint(detailOutput.IdCategory)
-				idAccount := fmt.Sprint(detailOutput.IdAccount)
-				idOutput := fmt.Sprint(detailOutput.IdOutput)
-				// find category in the database by id
-				if err := FindCategoryByID(idCategory, category); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
-				}
-				// find account in the database by id
-				if err := FindAccountById(idAccount, account); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
-				}
-				// find input in the database by id
-				if err := FindOutputById(idOutput, output); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
-				}
-				// assign category to detail input
-				detailOutput.Category = *category
-				// assign account to detail input
-				detailOutput.Account = *account
-				detailOutput.Account.Category = *category
-				// assign input to detail input
-				detailOutput.Output = *output
-				if detailOutput.Account.NameAccount == typeAccount && detailOutput.Category.NameCategory == typeCategory {
-					groupAccount.Credit += float64(detailOutput.TotalPrice)
-					groupCategory.TotalCredit += float64(detailOutput.TotalPrice)
-				}
-				groupAccount.DetailOutput = append(groupAccount.DetailOutput, detailOutput)
-			}
-			groupCategory.Accounts = append(groupCategory.Accounts, groupAccount)
 		}
 		groupCategorys = append(groupCategorys, groupCategory)
+	}
+	lengthaccount := 0
+	for _, groupCategory := range groupCategorys {
+		lengthaccount += len(groupCategory.Accounts)
 	}
 	if len(groupCategorys) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input And Output not found", "data": nil})
