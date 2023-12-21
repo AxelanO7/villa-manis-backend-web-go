@@ -19,11 +19,11 @@ func GetTransactionFilterByDate(c *fiber.Ctx) error {
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 	// find all detail input in the database by date
-	if err := db.Find(&detailInput, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+	if err := db.Find(&detailInput, "input_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 	}
 	// find all detail output in the database by date
-	if err := db.Find(&detailOutput, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+	if err := db.Find(&detailOutput, "output_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 	}
 	// adjust category, account, and input in detail input
@@ -394,11 +394,11 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
