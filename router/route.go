@@ -54,10 +54,12 @@ func SetupRoutes(app *fiber.App) {
 	detailInput.Post("/", handler.CreateDetailInput)
 	detailInput.Put("/:id", handler.UpdateDetailInput)
 	detailInput.Delete("/:id", handler.DeleteDetailInput)
+	detailInput.Get("/input/:id", handler.GetDetailInputsByInputID)
 
 	// detail inputs
 	detailInputs := api.Group("/detail-inputs")
 	detailInputs.Post("/", handler.CreateMultipleDetailInputs)
+	detailInputs.Put("/:id", handler.UpdateMultipleDetailInputs)
 
 	// output
 	output := api.Group("/output")
@@ -76,10 +78,12 @@ func SetupRoutes(app *fiber.App) {
 	detailOutput.Post("/", handler.CreateDetailOutput)
 	detailOutput.Put("/:id", handler.UpdateDetailOutput)
 	detailOutput.Delete("/:id", handler.DeleteDetailOutput)
+	detailOutput.Get("/output/:id", handler.GetDetailOutputsByOutputID)
 
 	// detail outputs
 	detailOutputs := api.Group("/detail-outputs")
 	detailOutputs.Post("/", handler.CreateMultipleDetailOutputs)
+	detailOutputs.Put("/:id", handler.UpdateMultipleDetailOutputs)
 
 	// general journal
 	generalJournal := api.Group("/general-journal")

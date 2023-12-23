@@ -9,7 +9,7 @@ import (
 )
 
 // find detail output by id
-func findDetailOutputById(id string, detailOutput *model.DetailOutput) error {
+func FindDetailOutputById(id string, detailOutput *model.DetailOutput) error {
 	db := database.DB.Db
 	// find single detail output in the database by id
 	db.Find(&detailOutput, "id = ?", id)
@@ -95,7 +95,7 @@ func GetSingleDetailOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find single detail output in the database by id
-	if err := findDetailOutputById(id, detailOutput); err != nil {
+	if err := FindDetailOutputById(id, detailOutput); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail output not found", "data": nil})
 	}
 	// find account in the database by id
@@ -123,7 +123,7 @@ func UpdateDetailOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find detail output in the database by id
-	if err := findDetailOutputById(id, detailOutput); err != nil {
+	if err := FindDetailOutputById(id, detailOutput); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail output not found", "data": nil})
 	}
 	// store the body in the detail output and return error if encountereds
@@ -157,7 +157,7 @@ func DeleteDetailOutput(c *fiber.Ctx) error {
 	// get id params
 	id := c.Params("id")
 	// find detail output in the database by id
-	if err := findDetailOutputById(id, detailOutput); err != nil {
+	if err := FindDetailOutputById(id, detailOutput); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail output not found", "data": nil})
 	}
 	// delete detail output
@@ -198,4 +198,88 @@ func CreateMultipleDetailOutputs(c *fiber.Ctx) error {
 	}
 	// return the created detail outputs
 	return c.JSON(fiber.Map{"status": "success", "message": "Detail outputs successfully created", "data": detailOutputs})
+}
+
+// get detail outputs by output id
+func GetDetailOutputsByOutputID(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailOutputs := []model.DetailOutput{}
+	output := new(model.Output)
+	// get id params
+	id := c.Params("id")
+	// find output in the database by id
+	if err := FindOutputById(id, output); err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
+	}
+	// find all detail outputs in the database by output id
+	if err := db.Find(&detailOutputs, "id_output = ?", id).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail outputs not found", "data": nil})
+	}
+	// if no detail output found, return an error
+	if len(detailOutputs) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "No detail output found", "data": nil})
+	}
+	responseDetailOutputs := []model.DetailOutput{}
+	for _, detailOutput := range detailOutputs {
+		account := new(model.Account)
+		// get id params
+		idAccount := fmt.Sprint(detailOutput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, account); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail output
+		detailOutput.Account = *account
+		responseDetailOutputs = append(responseDetailOutputs, detailOutput)
+	}
+	// return detail outputs
+	return c.JSON(fiber.Map{"status": "success", "message": "Detail outputs found", "data": responseDetailOutputs})
+}
+
+// update multiple detail outputs
+func UpdateMultipleDetailOutputs(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailOutputs := new([]model.DetailOutput)
+	existingDetailOutputs := []model.DetailOutput{}
+	id := c.Params("id")
+	// store the body in the detail outputs and return error if encountereds
+	if err := c.BodyParser(detailOutputs); err != nil {
+		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Something's wrong with your input", "data": err})
+	}
+	// find all detail outputs in the database by output id
+	if err := db.Find(&existingDetailOutputs, "id_output = ?", id).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail outputs not found", "data": nil})
+	}
+	db.Delete(&existingDetailOutputs)
+	for _, detailOutput := range *detailOutputs {
+		output := new(model.Output)
+		account := new(model.Account)
+		// find detail output in the database by id
+		// if err := FindDetailOutputById(fmt.Sprint(detailOutput.ID), &detailOutput); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail output not found", "data": nil})
+		// }
+		// find output in the database by id
+		if err := FindOutputById(fmt.Sprint(detailOutput.IdOutput), output); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
+		}
+		// find account in the database by id
+		if err := FindAccountById(fmt.Sprint(detailOutput.IdAccount), account); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign output to detail output
+		detailOutput.Output = *output
+		// assign account to detail output
+		detailOutput.Account = *account
+		db.Find(&detailOutput, "id = ?", detailOutput.ID)
+		if detailOutput.ID == 0 {
+			db.Create(&detailOutput)
+		} else {
+			// update detail output
+			if err := db.Save(&detailOutput).Error; err != nil {
+				return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not update detail output", "data": err})
+			}
+		}
+	}
+	// return the updated detail outputs
+	return c.JSON(fiber.Map{"status": "success", "message": "Detail outputs successfully updated", "data": detailOutputs})
 }
