@@ -106,4 +106,5 @@ func SetupRoutes(app *fiber.App) {
 	transaction.Get("/group", handler.GetTransactionGroupByAccount)
 	transaction.Get("/date/filter", handler.GetTransactionFilterByDate)
 	transaction.Get("/date/group", handler.GetTransactionGroupByDate)
+	transaction.Get("/total-transaction", handler.GetTotalTransaction)
 }

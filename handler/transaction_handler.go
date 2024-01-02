@@ -516,3 +516,84 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	// return detail input & output
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"group_date": groupDates}})
 }
+
+// get total transactions
+func GetTotalTransaction(c *fiber.Ctx) error {
+	db := database.DB.Db
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	totalDebit := 0
+	totalCredit := 0
+	// find all detail input in the database
+	if err := db.Find(&detailInput).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	}
+	// find all detail output in the database
+	if err := db.Find(&detailOutput).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	}
+	// if no detail input & output found, return an error
+	if len(detailInput) == 0 && len(detailOutput) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+	for i := range detailInput {
+		// category := new(model.Category)
+		// account := new(model.Account)
+		// input := new(model.Input)
+		// // convert id to string
+		// idCategory := fmt.Sprint(detailInput[i].IdCategory)
+		// idAccount := fmt.Sprint(detailInput[i].IdAccount)
+		// idInput := fmt.Sprint(detailInput[i].IdInput)
+		// // find category in the database by id
+		// if err := FindCategoryByID(idCategory, category); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+		// }
+		// // find account in the database by id
+		// if err := FindAccountById(idAccount, account); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		// }
+		// // find input in the database by id
+		// if err := FindInputById(idInput, input); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
+		// }
+		// // assign category to detail input
+		// detailInput[i].Category = *category
+		// // assign account to detail input
+		// detailInput[i].Account = *account
+		// detailInput[i].Account.Category = *category
+		// // assign input to detail input
+		// detailInput[i].Input = *input
+		totalDebit += detailInput[i].TotalPrice
+	}
+
+	for i := range detailOutput {
+		// category := new(model.Category)
+		// account := new(model.Account)
+		// output := new(model.Output)
+		// // convert id to string
+		// idCategory := fmt.Sprint(detailOutput[i].IdCategory)
+		// idAccount := fmt.Sprint(detailOutput[i].IdAccount)
+		// idOutput := fmt.Sprint(detailOutput[i].IdOutput)
+		// // find category in the database by id
+		// if err := FindCategoryByID(idCategory, category); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
+		// }
+		// // find account in the database by id
+		// if err := FindAccountById(idAccount, account); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		// }
+		// // find output in the database by id
+		// if err := FindOutputById(idOutput, output); err != nil {
+		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
+		// }
+		// // assign category to detail output
+		// detailOutput[i].Category = *category
+		// // assign account to detail output
+		// detailOutput[i].Account = *account
+		// detailOutput[i].Account.Category = *category
+		// // assign output to detail output
+		// detailOutput[i].Output = *output
+		totalCredit += detailOutput[i].TotalPrice
+	}
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit}})
+}
