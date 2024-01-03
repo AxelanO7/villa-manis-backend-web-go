@@ -731,11 +731,126 @@ func GetCashFlow(c *fiber.Ctx) error {
 				if detailOutput.Account.NameAccount == account.NameAccount {
 					groups[i].Accounts[j].TotalAccount += float64(detailOutput.TotalPrice)
 					groups[i].TotalGroup += float64(detailOutput.TotalPrice)
-					cashFlow.Total += float64(detailOutput.TotalPrice)
+					cashFlow.Total -= float64(detailOutput.TotalPrice)
 				}
 			}
 		}
 	}
 
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Cash Flow Found", "data": cashFlow})
+}
+
+func GetProfitLoss(c *fiber.Ctx) error {
+
+	type Item struct {
+		Name   string  `json:"name"`
+		Credit float64 `json:"credit"`
+		Debit  float64 `json:"debit"`
+	}
+
+	type Total struct {
+		Income  float64 `json:"income"`
+		Burden  float64 `json:"burden"`
+		Balance float64 `json:"balance"`
+	}
+
+	type ProfitLoss struct {
+		Income []Item `json:"income"`
+		Burden []Item `json:"burden"`
+		Total  Total  `json:"total"`
+	}
+
+	db := database.DB.Db
+	detailInputs := []model.DetailInput{}
+	detailOutputs := []model.DetailOutput{}
+
+	accounts := []model.Account{}
+
+	profitLoss := ProfitLoss{}
+
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	listIncome := []string{"kas"}
+	listBurden := []string{"beban"}
+
+	if startDate == "" || endDate == "" {
+		// find all detail input in the database
+		if err := db.Find(&detailInputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+	if startDate != "" && endDate != "" {
+		// find all detail input in the database by date
+		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database by date
+		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+
+	// if no detail input & output found, return an error
+	if len(detailInputs) == 0 && len(detailOutputs) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+
+	// find all accounts in the database
+	if err := db.Find(&accounts).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
+	}
+
+	profitLoss = ProfitLoss{
+		Income: []Item{},
+		Burden: []Item{},
+		Total: Total{
+			Income:  0,
+			Burden:  0,
+			Balance: 0,
+		},
+	}
+
+	for _, account := range accounts {
+		if slices.Contains(listIncome, account.NameAccount) {
+			profitLoss.Income = append(profitLoss.Income, Item{
+				Name:   account.NameAccount,
+				Credit: 0,
+				Debit:  0,
+			})
+		}
+		if slices.Contains(listBurden, account.NameAccount) {
+			profitLoss.Burden = append(profitLoss.Burden, Item{
+				Name:   account.NameAccount,
+				Credit: 0,
+				Debit:  0,
+			})
+		}
+	}
+
+	for _, detailInput := range detailInputs {
+		for i, item := range profitLoss.Income {
+			if detailInput.Account.NameAccount == item.Name {
+				profitLoss.Income[i].Debit += float64(detailInput.TotalPrice)
+				profitLoss.Total.Income += float64(detailInput.TotalPrice)
+				profitLoss.Total.Balance += float64(detailInput.TotalPrice)
+			}
+		}
+	}
+
+	for _, detailOutput := range detailOutputs {
+		for i, item := range profitLoss.Burden {
+			if detailOutput.Account.NameAccount == item.Name {
+				profitLoss.Burden[i].Credit += float64(detailOutput.TotalPrice)
+				profitLoss.Total.Burden += float64(detailOutput.TotalPrice)
+				profitLoss.Total.Balance -= float64(detailOutput.TotalPrice)
+			}
+		}
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Profit Loss Found", "data": profitLoss})
 }
