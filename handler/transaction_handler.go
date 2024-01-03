@@ -626,11 +626,13 @@ func GetCashFlow(c *fiber.Ctx) error {
 	cashFlow := CashFlow{}
 
 	listAccountOperational := []string{
-		"kas",
+		"Kas",
 	}
+
 	listAccountInvestation := []string{
 		"beban",
 	}
+
 	listAccountFinancing := []string{
 		"piutang",
 	}
@@ -736,7 +738,6 @@ func GetCashFlow(c *fiber.Ctx) error {
 			}
 		}
 	}
-
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Cash Flow Found", "data": cashFlow})
 }
 
@@ -771,8 +772,8 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	listIncome := []string{"kas"}
-	listBurden := []string{"beban"}
+	listIncome := []string{"Pendapatan Usaha"}
+	listBurden := []string{"Beban Gaji, Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain"}
 
 	if startDate == "" || endDate == "" {
 		// find all detail input in the database
@@ -851,6 +852,5 @@ func GetProfitLoss(c *fiber.Ctx) error {
 			}
 		}
 	}
-
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Profit Loss Found", "data": profitLoss})
 }
