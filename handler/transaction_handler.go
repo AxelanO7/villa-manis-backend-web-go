@@ -485,15 +485,18 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 				idOutput := fmt.Sprint(detailOutput.IdOutput)
 				// find category in the database by id
 				if err := FindCategoryByID(idCategory, category); err != nil {
+					continue
 					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
 				}
 				// find account in the database by id
 				if err := FindAccountById(idAccount, account); err != nil {
+					continue
 					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 				}
 				// find input in the database by id
 				if err := FindOutputById(idOutput, output); err != nil {
-					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
+					continue
+					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 				}
 				// assign category to detail input
 				detailOutput.Category = *category
@@ -596,4 +599,143 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 		totalCredit += detailOutput[i].TotalPrice
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit}})
+}
+
+func GetCashFlow(c *fiber.Ctx) error {
+	type Account struct {
+		NameAccount  string  `json:"name_account"`
+		TotalAccount float64 `json:"total_account"`
+	}
+
+	type Group struct {
+		NameGroup  string    `json:"name_group"`
+		Accounts   []Account `json:"accounts"`
+		TotalGroup float64   `json:"total_group"`
+	}
+
+	type CashFlow struct {
+		Group []Group `json:"groups"`
+		Total float64 `json:"totals"`
+	}
+
+	db := database.DB.Db
+	detailInputs := []model.DetailInput{}
+	detailOutputs := []model.DetailOutput{}
+	accounts := []model.Account{}
+	groups := []Group{}
+	cashFlow := CashFlow{}
+
+	listAccountOperational := []string{
+		"kas",
+	}
+	listAccountInvestation := []string{
+		"beban",
+	}
+	listAccountFinancing := []string{
+		"piutang",
+	}
+
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	if startDate == "" || endDate == "" {
+		// find all detail input in the database
+		if err := db.Find(&detailInputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+	if startDate != "" && endDate != "" {
+		// find all detail input in the database by date
+		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database by date
+		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+
+	// if no detail input & output found, return an error
+	if len(detailInputs) == 0 && len(detailOutputs) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+
+	// find all accounts in the database
+	if err := db.Find(&accounts).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
+	}
+
+	groups = []Group{
+		{
+			NameGroup:  "operational",
+			Accounts:   []Account{},
+			TotalGroup: 0,
+		},
+		{
+			NameGroup:  "investation",
+			Accounts:   []Account{},
+			TotalGroup: 0,
+		},
+		{
+			NameGroup:  "financing",
+			Accounts:   []Account{},
+			TotalGroup: 0,
+		},
+	}
+
+	cashFlow = CashFlow{
+		Group: groups,
+		Total: 0,
+	}
+
+	for _, account := range accounts {
+		if slices.Contains(listAccountOperational, account.NameAccount) {
+			groups[0].Accounts = append(groups[0].Accounts, Account{
+				NameAccount:  account.NameAccount,
+				TotalAccount: 0,
+			})
+		}
+		if slices.Contains(listAccountInvestation, account.NameAccount) {
+			groups[1].Accounts = append(groups[1].Accounts, Account{
+				NameAccount:  account.NameAccount,
+				TotalAccount: 0,
+			})
+		}
+		if slices.Contains(listAccountFinancing, account.NameAccount) {
+			groups[2].Accounts = append(groups[2].Accounts, Account{
+				NameAccount:  account.NameAccount,
+				TotalAccount: 0,
+			})
+		}
+	}
+
+	for _, detailInput := range detailInputs {
+		for i, group := range groups {
+			for j, account := range group.Accounts {
+				if detailInput.Account.NameAccount == account.NameAccount {
+					groups[i].Accounts[j].TotalAccount += float64(detailInput.TotalPrice)
+					groups[i].TotalGroup += float64(detailInput.TotalPrice)
+					cashFlow.Total += float64(detailInput.TotalPrice)
+				}
+			}
+		}
+	}
+
+	for _, detailOutput := range detailOutputs {
+		for i, group := range groups {
+			for j, account := range group.Accounts {
+				if detailOutput.Account.NameAccount == account.NameAccount {
+					groups[i].Accounts[j].TotalAccount += float64(detailOutput.TotalPrice)
+					groups[i].TotalGroup += float64(detailOutput.TotalPrice)
+					cashFlow.Total += float64(detailOutput.TotalPrice)
+				}
+			}
+		}
+	}
+
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Cash Flow Found", "data": cashFlow})
 }
