@@ -716,6 +716,15 @@ func GetCashFlow(c *fiber.Ctx) error {
 	}
 
 	for _, detailInput := range detailInputs {
+		accountDetailInput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailInput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailInput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailInput.Account = *accountDetailInput
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailInput.Account.NameAccount == account.NameAccount {
@@ -728,6 +737,15 @@ func GetCashFlow(c *fiber.Ctx) error {
 	}
 
 	for _, detailOutput := range detailOutputs {
+		accountDetailOutput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailOutput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailOutput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailOutput.Account = *accountDetailOutput
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailOutput.Account.NameAccount == account.NameAccount {
@@ -773,7 +791,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	endDate := c.Query("end_date")
 
 	listIncome := []string{"Pendapatan Usaha"}
-	listBurden := []string{"Beban Gaji, Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain"}
+	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain"}
 
 	if startDate == "" || endDate == "" {
 		// find all detail input in the database
@@ -834,6 +852,15 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	}
 
 	for _, detailInput := range detailInputs {
+		accountDetailInput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailInput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailInput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailInput.Account = *accountDetailInput
 		for i, item := range profitLoss.Income {
 			if detailInput.Account.NameAccount == item.Name {
 				profitLoss.Income[i].Debit += float64(detailInput.TotalPrice)
@@ -844,6 +871,15 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	}
 
 	for _, detailOutput := range detailOutputs {
+		accountDetailOutput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailOutput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailOutput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailOutput.Account = *accountDetailOutput
 		for i, item := range profitLoss.Burden {
 			if detailOutput.Account.NameAccount == item.Name {
 				profitLoss.Burden[i].Credit += float64(detailOutput.TotalPrice)
@@ -852,5 +888,6 @@ func GetProfitLoss(c *fiber.Ctx) error {
 			}
 		}
 	}
+
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Profit Loss Found", "data": profitLoss})
 }
