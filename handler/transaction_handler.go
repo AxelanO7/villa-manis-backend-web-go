@@ -626,15 +626,15 @@ func GetCashFlow(c *fiber.Ctx) error {
 	cashFlow := CashFlow{}
 
 	listAccountOperational := []string{
-		"Kas",
+		"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain", "Pendapatan Usaha",
 	}
 
 	listAccountInvestation := []string{
-		"beban",
+		"Bank BRI", "Bank Mandiri",
 	}
 
 	listAccountFinancing := []string{
-		"piutang",
+		"Kas",
 	}
 
 	startDate := c.Query("start_date")
@@ -751,7 +751,7 @@ func GetCashFlow(c *fiber.Ctx) error {
 				if detailOutput.Account.NameAccount == account.NameAccount {
 					groups[i].Accounts[j].TotalAccount += float64(detailOutput.TotalPrice)
 					groups[i].TotalGroup += float64(detailOutput.TotalPrice)
-					cashFlow.Total -= float64(detailOutput.TotalPrice)
+					cashFlow.Total += float64(detailOutput.TotalPrice)
 				}
 			}
 		}
@@ -791,7 +791,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	endDate := c.Query("end_date")
 
 	listIncome := []string{"Pendapatan Usaha"}
-	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain"}
+	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	if startDate == "" || endDate == "" {
 		// find all detail input in the database
