@@ -109,4 +109,5 @@ func SetupRoutes(app *fiber.App) {
 	transaction.Get("/total-transaction", handler.GetTotalTransaction)
 	transaction.Get("/cash-flow", handler.GetCashFlow)
 	transaction.Get("/profit-loss", handler.GetProfitLoss)
+	transaction.Get("/capital-change", handler.GetCapitalChange)
 }

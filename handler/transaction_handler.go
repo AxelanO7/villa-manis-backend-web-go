@@ -891,3 +891,130 @@ func GetProfitLoss(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Profit Loss Found", "data": profitLoss})
 }
+
+func GetCapitalChange(c *fiber.Ctx) error {
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	db := database.DB.Db
+	detailInputs := []model.DetailInput{}
+	detailOutputs := []model.DetailOutput{}
+
+	listIncome := []string{"Pendapatan Usaha"}
+	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
+
+	accounts := []model.Account{}
+
+	if startDate == "" || endDate == "" {
+		// find all detail input in the database
+		if err := db.Find(&detailInputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutputs).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+	if startDate != "" && endDate != "" {
+		// find all detail input in the database by date
+		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database by date
+		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
+	}
+
+	// if no detail input & output found, return an error
+	if len(detailInputs) == 0 && len(detailOutputs) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
+	}
+
+	// find all accounts in the database
+	if err := db.Find(&accounts).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
+	}
+
+	beginningCapital := 0
+	netIncome := 0
+	prive := 0
+	addCapital := 0
+	endCapital := 0
+
+	for _, detailInput := range detailInputs {
+		accountDetailInput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailInput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailInput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailInput.Account = *accountDetailInput
+		if detailInput.Account.NameAccount == "Modal Awal" {
+			beginningCapital += detailInput.TotalPrice
+		}
+		if detailInput.Account.NameAccount == "Prive" {
+			prive += detailInput.TotalPrice
+		}
+		if detailInput.Account.NameAccount == "Penambahan Modal" {
+			addCapital += detailInput.TotalPrice
+		}
+	}
+
+	for _, detailOutput := range detailOutputs {
+		accountDetailOutput := new(model.Account)
+		// convert id to string
+		idAccount := fmt.Sprint(detailOutput.IdAccount)
+		// find account in the database by id
+		if err := FindAccountById(idAccount, accountDetailOutput); err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+		}
+		// assign account to detail input
+		detailOutput.Account = *accountDetailOutput
+		if detailOutput.Account.NameAccount == "Prive" {
+			prive -= detailOutput.TotalPrice
+		}
+		if detailOutput.Account.NameAccount == "Penambahan Modal" {
+			addCapital -= detailOutput.TotalPrice
+		}
+	}
+
+	for _, account := range accounts {
+		if slices.Contains(listIncome, account.NameAccount) {
+			for _, detailInput := range detailInputs {
+				accountDetailInput := new(model.Account)
+				// convert id to string
+				idAccount := fmt.Sprint(detailInput.IdAccount)
+				// find account in the database by id
+				if err := FindAccountById(idAccount, accountDetailInput); err != nil {
+					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+				}
+				// assign account to detail input
+				detailInput.Account = *accountDetailInput
+				if detailInput.Account.NameAccount == account.NameAccount {
+					netIncome += detailInput.TotalPrice
+				}
+			}
+		}
+		if slices.Contains(listBurden, account.NameAccount) {
+			for _, detailOutput := range detailOutputs {
+				accountDetailOutput := new(model.Account)
+				// convert id to string
+				idAccount := fmt.Sprint(detailOutput.IdAccount)
+				// find account in the database by id
+				if err := FindAccountById(idAccount, accountDetailOutput); err != nil {
+					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
+				}
+				// assign account to detail input
+				detailOutput.Account = *accountDetailOutput
+				if detailOutput.Account.NameAccount == account.NameAccount {
+					netIncome -= detailOutput.TotalPrice
+				}
+			}
+		}
+	}
+	endCapital = beginningCapital + netIncome + addCapital - prive
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Capital Change Found", "data": fiber.Map{"beginning_capital": beginningCapital, "net_income": netIncome, "prive": prive, "additional_capital": addCapital, "end_capital": endCapital}})
+}
