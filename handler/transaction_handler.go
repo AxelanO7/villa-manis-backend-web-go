@@ -253,11 +253,11 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
@@ -400,11 +400,11 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
@@ -652,11 +652,11 @@ func GetCashFlow(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
@@ -749,9 +749,9 @@ func GetCashFlow(c *fiber.Ctx) error {
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailOutput.Account.NameAccount == account.NameAccount {
-					groups[i].Accounts[j].TotalAccount += float64(detailOutput.TotalPrice)
-					groups[i].TotalGroup += float64(detailOutput.TotalPrice)
-					cashFlow.Total += float64(detailOutput.TotalPrice)
+					groups[i].Accounts[j].TotalAccount -= float64(detailOutput.TotalPrice)
+					groups[i].TotalGroup -= float64(detailOutput.TotalPrice)
+					cashFlow.Total -= float64(detailOutput.TotalPrice)
 				}
 			}
 		}
@@ -790,7 +790,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	listIncome := []string{"Pendapatan Usaha"}
+	listIncome := []string{"Kas", "Pendapatan Usaha"}
 	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	if startDate == "" || endDate == "" {
@@ -805,11 +805,11 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
@@ -900,7 +900,7 @@ func GetCapitalChange(c *fiber.Ctx) error {
 	detailInputs := []model.DetailInput{}
 	detailOutputs := []model.DetailOutput{}
 
-	listIncome := []string{"Pendapatan Usaha"}
+	listIncome := []string{"Kas", "Pendapatan Usaha"}
 	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	accounts := []model.Account{}
@@ -917,11 +917,11 @@ func GetCapitalChange(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "created_at BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
