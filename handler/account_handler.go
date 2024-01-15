@@ -129,6 +129,14 @@ func DeleteAccount(c *fiber.Ctx) error {
 	if err := FindAccountById(id, account); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 	}
+	// find detail input in the database by id
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	db.Find(&detailInput, "account_id = ?", id)
+	db.Find(&detailOutput, "account_id = ?", id)
+	db.Delete(&detailInput)
+	db.Delete(&detailOutput)
+	
 	// delete account
 	if err := db.Delete(account).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete account", "data": err})

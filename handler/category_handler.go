@@ -95,6 +95,17 @@ func DeleteCategory(c *fiber.Ctx) error {
 	if err := FindCategoryByID(id, category); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
 	}
+	// find account in the database by id
+	accounts := []model.Account{}
+	detailInput := []model.DetailInput{}
+	detailOutput := []model.DetailOutput{}
+	db.Find(&accounts, "id_category = ?", id)
+	db.Find(&detailInput, "id_category = ?", id)
+	db.Find(&detailOutput, "id_category = ?", id)
+	db.Delete(&accounts)
+	db.Delete(&detailInput)
+	db.Delete(&detailOutput)
+
 	// delete category
 	if err := db.Delete(category, "id = ?", id).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete category", "data": err})
