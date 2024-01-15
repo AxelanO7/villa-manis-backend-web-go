@@ -95,6 +95,17 @@ func DeleteInput(c *fiber.Ctx) error {
 	if err := FindInputById(id, input); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 	}
+	// find detail input in the database by id
+	detailInput := []model.DetailInput{}
+	db.Find(&detailInput, "input_id = ?", id)
+	// if err := db.Find(&detailInput, "input_id = ?", id).Error; err != nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found"})
+	// }
+	// delete detail input
+	db.Delete(&detailInput)
+	// if err := db.Delete(&detailInput).Error; err != nil {
+	// 	return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete detail input", "data": err})
+	// }
 	// delete input
 	if err := db.Delete(input).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete input", "data": err})

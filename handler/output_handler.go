@@ -95,6 +95,17 @@ func DeleteOutput(c *fiber.Ctx) error {
 	if err := FindOutputById(id, output); err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
 	}
+	// find detail output in the database by id
+	detailOutput := []model.DetailOutput{}
+	db.Find(&detailOutput, "output_id = ?", id)
+	// if err := db.Find(&detailOutput, "output_id = ?", id).Error; err != nil {
+	// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	// }
+	// delete detail output
+	db.Delete(&detailOutput)
+	// if err := db.Delete(&detailOutput).Error; err != nil {
+	// 	return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete detail output", "data": err})
+	// }
 	// delete output
 	if err := db.Delete(output).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete output", "data": err})
