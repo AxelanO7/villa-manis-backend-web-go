@@ -857,6 +857,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		idAccount := fmt.Sprint(detailInput.IdAccount)
 		// find account in the database by id
 		if err := FindAccountById(idAccount, accountDetailInput); err != nil {
+			continue
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// assign account to detail input
