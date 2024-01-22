@@ -522,11 +522,30 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 
 // get total transactions
 func GetTotalTransaction(c *fiber.Ctx) error {
+	// month struct
+	type Month struct {
+		January   float32 `json:"january"`
+		February  float32 `json:"february"`
+		March     float32 `json:"march"`
+		April     float32 `json:"april"`
+		May       float32 `json:"may"`
+		June      float32 `json:"june"`
+		July      float32 `json:"july"`
+		August    float32 `json:"august"`
+		September float32 `json:"september"`
+		October   float32 `json:"october"`
+		November  float32 `json:"november"`
+		December  float32 `json:"december"`
+	}
+
 	db := database.DB.Db
 	detailInput := []model.DetailInput{}
 	detailOutput := []model.DetailOutput{}
 	totalDebit := 0
 	totalCredit := 0
+	totalDebitMonth := Month{}
+	totalCreditMonth := Month{}
+
 	// find all detail input in the database
 	if err := db.Find(&detailInput).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
@@ -539,66 +558,76 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 	if len(detailInput) == 0 && len(detailOutput) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
 	}
-	for i := range detailInput {
-		// category := new(model.Category)
-		// account := new(model.Account)
-		// input := new(model.Input)
-		// // convert id to string
-		// idCategory := fmt.Sprint(detailInput[i].IdCategory)
-		// idAccount := fmt.Sprint(detailInput[i].IdAccount)
-		// idInput := fmt.Sprint(detailInput[i].IdInput)
-		// // find category in the database by id
-		// if err := FindCategoryByID(idCategory, category); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
-		// }
-		// // find account in the database by id
-		// if err := FindAccountById(idAccount, account); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
-		// }
-		// // find input in the database by id
-		// if err := FindInputById(idInput, input); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
-		// }
-		// // assign category to detail input
-		// detailInput[i].Category = *category
-		// // assign account to detail input
-		// detailInput[i].Account = *account
-		// detailInput[i].Account.Category = *category
-		// // assign input to detail input
-		// detailInput[i].Input = *input
-		totalDebit += detailInput[i].TotalPrice
-	}
 
-	for i := range detailOutput {
-		// category := new(model.Category)
-		// account := new(model.Account)
-		// output := new(model.Output)
-		// // convert id to string
-		// idCategory := fmt.Sprint(detailOutput[i].IdCategory)
-		// idAccount := fmt.Sprint(detailOutput[i].IdAccount)
-		// idOutput := fmt.Sprint(detailOutput[i].IdOutput)
-		// // find category in the database by id
-		// if err := FindCategoryByID(idCategory, category); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
-		// }
-		// // find account in the database by id
-		// if err := FindAccountById(idAccount, account); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
-		// }
-		// // find output in the database by id
-		// if err := FindOutputById(idOutput, output); err != nil {
-		// 	return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Output not found"})
-		// }
-		// // assign category to detail output
-		// detailOutput[i].Category = *category
-		// // assign account to detail output
-		// detailOutput[i].Account = *account
-		// detailOutput[i].Account.Category = *category
-		// // assign output to detail output
-		// detailOutput[i].Output = *output
-		totalCredit += detailOutput[i].TotalPrice
+	for i := range detailInput {
+		for j := 1; j <= 12; j++ {
+			if time.Time(detailInput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailInput[i].CreatedAt).Year() == time.Now().Year() {
+				switch j {
+				case 1:
+					totalDebitMonth.January += float32(detailInput[i].TotalPrice)
+				case 2:
+					totalDebitMonth.February += float32(detailInput[i].TotalPrice)
+				case 3:
+					totalDebitMonth.March += float32(detailInput[i].TotalPrice)
+				case 4:
+					totalDebitMonth.April += float32(detailInput[i].TotalPrice)
+				case 5:
+					totalDebitMonth.May += float32(detailInput[i].TotalPrice)
+				case 6:
+					totalDebitMonth.June += float32(detailInput[i].TotalPrice)
+				case 7:
+					totalDebitMonth.July += float32(detailInput[i].TotalPrice)
+				case 8:
+					totalDebitMonth.August += float32(detailInput[i].TotalPrice)
+				case 9:
+					totalDebitMonth.September += float32(detailInput[i].TotalPrice)
+				case 10:
+					totalDebitMonth.October += float32(detailInput[i].TotalPrice)
+				case 11:
+					totalDebitMonth.November += float32(detailInput[i].TotalPrice)
+				case 12:
+					totalDebitMonth.December += float32(detailInput[i].TotalPrice)
+				}
+			}
+			totalDebit += detailInput[i].TotalPrice
+		}
+
+		for i := range detailOutput {
+			for j := 1; j <= 12; j++ {
+				if time.Time(detailOutput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailInput[i].CreatedAt).Year() == time.Now().Year() {
+					switch j {
+					case 1:
+						totalCreditMonth.January += float32(detailOutput[i].TotalPrice)
+					case 2:
+						totalCreditMonth.February += float32(detailOutput[i].TotalPrice)
+					case 3:
+						totalCreditMonth.March += float32(detailOutput[i].TotalPrice)
+					case 4:
+						totalCreditMonth.April += float32(detailOutput[i].TotalPrice)
+					case 5:
+						totalCreditMonth.May += float32(detailOutput[i].TotalPrice)
+					case 6:
+						totalCreditMonth.June += float32(detailOutput[i].TotalPrice)
+					case 7:
+						totalCreditMonth.July += float32(detailOutput[i].TotalPrice)
+					case 8:
+						totalCreditMonth.August += float32(detailOutput[i].TotalPrice)
+					case 9:
+						totalCreditMonth.September += float32(detailOutput[i].TotalPrice)
+					case 10:
+						totalCreditMonth.October += float32(detailOutput[i].TotalPrice)
+					case 11:
+						totalCreditMonth.November += float32(detailOutput[i].TotalPrice)
+					case 12:
+						totalCreditMonth.December += float32(detailOutput[i].TotalPrice)
+					}
+				}
+			}
+			totalCredit += detailOutput[i].TotalPrice
+		}
 	}
-	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit}})
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit,
+		"total_debit_month": totalDebitMonth, "total_credit_month": totalCreditMonth}})
 }
 
 func GetCashFlow(c *fiber.Ctx) error {
