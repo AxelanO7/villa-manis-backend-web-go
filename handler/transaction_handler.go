@@ -539,8 +539,8 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 	}
 
 	db := database.DB.Db
-	detailInput := []model.DetailInput{}
-	detailOutput := []model.DetailOutput{}
+	detailInput := new([]model.DetailInput)
+	detailOutput := new([]model.DetailOutput)
 	totalDebit := 0
 	totalCredit := 0
 	totalDebitMonth := Month{}
@@ -555,74 +555,78 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 	}
 	// if no detail input & output found, return an error
-	if len(detailInput) == 0 && len(detailOutput) == 0 {
+	if len(*detailInput) == 0 && len(*detailOutput) == 0 {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
 	}
 
-	for i := 0; i < len(detailInput); i++ {
+	for i := 0; i < len(*detailInput); i++ {
 		for j := 1; j <= 12; j++ {
-			if time.Time(detailInput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailInput[i].CreatedAt).Year() == time.Now().Year() {
+			if time.Time((*detailInput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailInput)[i].CreatedAt).Year() == time.Now().Year() {
 				switch j {
 				case 1:
-					totalDebitMonth.January += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.January += float32((*detailInput)[i].TotalPrice)
 				case 2:
-					totalDebitMonth.February += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.February += float32((*detailInput)[i].TotalPrice)
 				case 3:
-					totalDebitMonth.March += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.March += float32((*detailInput)[i].TotalPrice)
 				case 4:
-					totalDebitMonth.April += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.April += float32((*detailInput)[i].TotalPrice)
 				case 5:
-					totalDebitMonth.May += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.May += float32((*detailInput)[i].TotalPrice)
 				case 6:
-					totalDebitMonth.June += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.June += float32((*detailInput)[i].TotalPrice)
 				case 7:
-					totalDebitMonth.July += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.July += float32((*detailInput)[i].TotalPrice)
 				case 8:
-					totalDebitMonth.August += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.August += float32((*detailInput)[i].TotalPrice)
 				case 9:
-					totalDebitMonth.September += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.September += float32((*detailInput)[i].TotalPrice)
 				case 10:
-					totalDebitMonth.October += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.October += float32((*detailInput)[i].TotalPrice)
 				case 11:
-					totalDebitMonth.November += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.November += float32((*detailInput)[i].TotalPrice)
 				case 12:
-					totalDebitMonth.December += float32(detailInput[i].TotalPrice)
+					totalDebitMonth.December += float32((*detailInput)[i].TotalPrice)
+				default:
+					totalDebitMonth.January += float32((*detailInput)[i].TotalPrice)
 				}
 			}
-			totalDebit += detailInput[i].TotalPrice
+			totalDebit += (*detailInput)[i].TotalPrice
 		}
 	}
-	for i := 0; i < len(detailOutput); i++ {
+	for i := 0; i < len(*detailOutput); i++ {
 		for j := 1; j <= 12; j++ {
-			if time.Time(detailOutput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailOutput[i].CreatedAt).Year() == time.Now().Year() {
+			if time.Time((*detailOutput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailOutput)[i].CreatedAt).Year() == time.Now().Year() {
 				switch j {
 				case 1:
-					totalCreditMonth.January += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.January += float32((*detailOutput)[i].TotalPrice)
 				case 2:
-					totalCreditMonth.February += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.February += float32((*detailOutput)[i].TotalPrice)
 				case 3:
-					totalCreditMonth.March += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.March += float32((*detailOutput)[i].TotalPrice)
 				case 4:
-					totalCreditMonth.April += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.April += float32((*detailOutput)[i].TotalPrice)
 				case 5:
-					totalCreditMonth.May += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.May += float32((*detailOutput)[i].TotalPrice)
 				case 6:
-					totalCreditMonth.June += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.June += float32((*detailOutput)[i].TotalPrice)
 				case 7:
-					totalCreditMonth.July += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.July += float32((*detailOutput)[i].TotalPrice)
 				case 8:
-					totalCreditMonth.August += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.August += float32((*detailOutput)[i].TotalPrice)
 				case 9:
-					totalCreditMonth.September += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.September += float32((*detailOutput)[i].TotalPrice)
 				case 10:
-					totalCreditMonth.October += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.October += float32((*detailOutput)[i].TotalPrice)
 				case 11:
-					totalCreditMonth.November += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.November += float32((*detailOutput)[i].TotalPrice)
 				case 12:
-					totalCreditMonth.December += float32(detailInput[i].TotalPrice)
+					totalCreditMonth.December += float32((*detailOutput)[i].TotalPrice)
+				default:
+					totalCreditMonth.January += float32((*detailOutput)[i].TotalPrice)
 				}
 			}
-			totalCredit += detailOutput[i].TotalPrice
+			totalCredit += (*detailOutput)[i].TotalPrice
 		}
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit,
