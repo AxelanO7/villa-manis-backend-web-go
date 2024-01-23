@@ -559,7 +559,7 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input & Output not found", "data": nil})
 	}
 
-	for i := range detailInput {
+	for i := 0; i < len(detailInput); i++ {
 		for j := 1; j <= 12; j++ {
 			if time.Time(detailInput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailInput[i].CreatedAt).Year() == time.Now().Year() {
 				switch j {
@@ -592,7 +592,7 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 			totalDebit += detailInput[i].TotalPrice
 		}
 	}
-	for i := range detailOutput {
+	for i := 0; i < len(detailOutput); i++ {
 		for j := 1; j <= 12; j++ {
 			if time.Time(detailOutput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailOutput[i].CreatedAt).Year() == time.Now().Year() {
 				switch j {
