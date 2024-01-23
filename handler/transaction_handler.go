@@ -591,36 +591,35 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 			}
 			totalDebit += detailInput[i].TotalPrice
 		}
-
-		for i := range detailOutput {
-			for j := 1; j <= 12; j++ {
-				if time.Time(detailOutput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailInput[i].CreatedAt).Year() == time.Now().Year() {
-					switch j {
-					case 1:
-						totalCreditMonth.January += float32(detailOutput[i].TotalPrice)
-					case 2:
-						totalCreditMonth.February += float32(detailOutput[i].TotalPrice)
-					case 3:
-						totalCreditMonth.March += float32(detailOutput[i].TotalPrice)
-					case 4:
-						totalCreditMonth.April += float32(detailOutput[i].TotalPrice)
-					case 5:
-						totalCreditMonth.May += float32(detailOutput[i].TotalPrice)
-					case 6:
-						totalCreditMonth.June += float32(detailOutput[i].TotalPrice)
-					case 7:
-						totalCreditMonth.July += float32(detailOutput[i].TotalPrice)
-					case 8:
-						totalCreditMonth.August += float32(detailOutput[i].TotalPrice)
-					case 9:
-						totalCreditMonth.September += float32(detailOutput[i].TotalPrice)
-					case 10:
-						totalCreditMonth.October += float32(detailOutput[i].TotalPrice)
-					case 11:
-						totalCreditMonth.November += float32(detailOutput[i].TotalPrice)
-					case 12:
-						totalCreditMonth.December += float32(detailOutput[i].TotalPrice)
-					}
+	}
+	for i := range detailOutput {
+		for j := 1; j <= 12; j++ {
+			if time.Time(detailOutput[i].CreatedAt).Month() == time.Month(j) && time.Time(detailOutput[i].CreatedAt).Year() == time.Now().Year() {
+				switch j {
+				case 1:
+					totalCreditMonth.January += float32(detailInput[i].TotalPrice)
+				case 2:
+					totalCreditMonth.February += float32(detailInput[i].TotalPrice)
+				case 3:
+					totalCreditMonth.March += float32(detailInput[i].TotalPrice)
+				case 4:
+					totalCreditMonth.April += float32(detailInput[i].TotalPrice)
+				case 5:
+					totalCreditMonth.May += float32(detailInput[i].TotalPrice)
+				case 6:
+					totalCreditMonth.June += float32(detailInput[i].TotalPrice)
+				case 7:
+					totalCreditMonth.July += float32(detailInput[i].TotalPrice)
+				case 8:
+					totalCreditMonth.August += float32(detailInput[i].TotalPrice)
+				case 9:
+					totalCreditMonth.September += float32(detailInput[i].TotalPrice)
+				case 10:
+					totalCreditMonth.October += float32(detailInput[i].TotalPrice)
+				case 11:
+					totalCreditMonth.November += float32(detailInput[i].TotalPrice)
+				case 12:
+					totalCreditMonth.December += float32(detailInput[i].TotalPrice)
 				}
 			}
 			totalCredit += detailOutput[i].TotalPrice
