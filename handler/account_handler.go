@@ -132,11 +132,20 @@ func DeleteAccount(c *fiber.Ctx) error {
 	// find detail input in the database by id
 	detailInput := []model.DetailInput{}
 	detailOutput := []model.DetailOutput{}
+	generalCart := []model.GeneralCart{}
+	detailJournal := []model.DetailJournal{}
+	typeCategory := []model.TypeCategory{}
 	db.Find(&detailInput, "account_id = ?", id)
 	db.Find(&detailOutput, "account_id = ?", id)
+	db.Find(&generalCart, "account_id = ?", id)
+	db.Find(&detailJournal, "account_id = ?", id)
+	db.Find(&typeCategory, "account_id = ?", id)
 	db.Delete(&detailInput)
 	db.Delete(&detailOutput)
-	
+	db.Delete(&generalCart)
+	db.Delete(&detailJournal)
+	db.Delete(&typeCategory)
+
 	// delete account
 	if err := db.Delete(account).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Could not delete account", "data": err})

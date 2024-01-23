@@ -451,14 +451,17 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 				idInput := fmt.Sprint(detailInput.IdInput)
 				// find category in the database by id
 				if err := FindCategoryByID(idCategory, category); err != nil {
+					continue
 					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Category not found"})
 				}
 				// find account in the database by id
 				if err := FindAccountById(idAccount, account); err != nil {
+					continue
 					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 				}
 				// find input in the database by id
 				if err := FindInputById(idInput, input); err != nil {
+					continue
 					return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Input not found"})
 				}
 				// assign category to detail input
@@ -909,6 +912,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		idAccount := fmt.Sprint(detailOutput.IdAccount)
 		// find account in the database by id
 		if err := FindAccountById(idAccount, accountDetailOutput); err != nil {
+			continue
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Account not found"})
 		}
 		// assign account to detail input
