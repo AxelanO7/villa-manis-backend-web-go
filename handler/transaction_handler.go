@@ -824,6 +824,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	detailOutputs := []model.DetailOutput{}
 
 	accounts := []model.Account{}
+	categorys := []model.Category{}
 
 	profitLoss := ProfitLoss{}
 
@@ -831,7 +832,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	endDate := c.Query("end_date")
 
 	listIncome := []string{"Kas", "Pendapatan Usaha"}
-	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
+	// listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	if startDate == "" || endDate == "" {
 		// find all detail input in the database
@@ -864,6 +865,10 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Accounts not found", "data": nil})
 	}
 
+	if err := db.Find(&categorys).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Categorys not found", "data": nil})
+	}
+
 	profitLoss = ProfitLoss{
 		Income: []Item{},
 		Burden: []Item{},
@@ -875,14 +880,22 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	}
 
 	for _, account := range accounts {
+		category := new(model.Category)
+		FindCategoryByID(fmt.Sprint(account.IdCategory), category)
+		account.Category = *category
+
+		fmt.Println("accounts ", account.NameAccount)
 		if slices.Contains(listIncome, account.NameAccount) {
+			fmt.Println("incomes ", account.NameAccount)
 			profitLoss.Income = append(profitLoss.Income, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
 				Debit:  0,
 			})
 		}
-		if slices.Contains(listBurden, account.NameAccount) {
+		// if slices.Contains(listBurden, account.NameAccount) {
+		if account.Category.NameCategory == "Beban" {
+			fmt.Println("burdens ", account.NameAccount)
 			profitLoss.Burden = append(profitLoss.Burden, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
@@ -890,6 +903,9 @@ func GetProfitLoss(c *fiber.Ctx) error {
 			})
 		}
 	}
+
+	fmt.Println("profitLoss ", profitLoss.Income)
+	fmt.Println("profitLoss ", profitLoss.Burden)
 
 	for _, detailInput := range detailInputs {
 		accountDetailInput := new(model.Account)
