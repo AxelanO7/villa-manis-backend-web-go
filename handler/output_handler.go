@@ -113,3 +113,46 @@ func DeleteOutput(c *fiber.Ctx) error {
 	// return deleted output
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Output has deleted", "data": nil})
 }
+
+// get output master
+func GetOutputMaster(c *fiber.Ctx) error {
+	db := database.DB.Db
+	outputs := []model.Output{}
+	detailOutputs := []model.DetailOutput{}
+	type OutputMaster struct {
+		ID                uint     `json:"id"`
+		NoOutput          string   `json:"no_output"`
+		DateOutput        string   `json:"date_output"`
+		StatusOutput      string   `json:"status_output"`
+		OutputInformation []string `json:"output_information"`
+	}
+	outputMasters := []OutputMaster{}
+	// find all outputs in the database
+	if err := db.Find(&outputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Outputs not found", "data": nil})
+	}
+	if err := db.Find(&detailOutputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Outputs not found", "data": nil})
+	}
+	for _, output := range outputs {
+		OutputInformation := []string{}
+		for _, detailOutput := range detailOutputs {
+			if output.ID == uint(detailOutput.IdOutput) {
+				OutputInformation = append(OutputInformation, detailOutput.OutputInformation)
+			}
+		}
+		outputMasters = append(outputMasters, OutputMaster{
+			ID:                output.ID,
+			NoOutput:          output.NoOutput,
+			DateOutput:        output.DateOutput,
+			StatusOutput:      output.StatusOutput,
+			OutputInformation: OutputInformation,
+		})
+	}
+	// if no output found, return an error
+	if len(outputMasters) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Outputs not found", "data": nil})
+	}
+	// return outputs
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Outputs Found", "data": outputMasters})
+}

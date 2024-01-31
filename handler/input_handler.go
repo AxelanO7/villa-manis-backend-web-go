@@ -113,3 +113,46 @@ func DeleteInput(c *fiber.Ctx) error {
 	// return deleted input
 	return c.Status(200).JSON(fiber.Map{"status": "success", "message": "Input has deleted", "data": nil})
 }
+
+// get input master
+func GetInputMaster(c *fiber.Ctx) error {
+	db := database.DB.Db
+	inputs := []model.Input{}
+	detailInputs := []model.DetailInput{}
+	type InputMaster struct {
+		ID               uint     `json:"id"`
+		NoInput          string   `json:"no_input"`
+		DateInput        string   `json:"date_input"`
+		StatusInput      string   `json:"status_input"`
+		InputInformation []string `json:"input_information"`
+	}
+	inputMaster := []InputMaster{}
+	// find all inputs in the database
+	if err := db.Find(&inputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Inputs not found", "data": nil})
+	}
+	if err := db.Find(&detailInputs).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Inputs not found", "data": nil})
+	}
+	for _, input := range inputs {
+		inputInformation := []string{}
+		for _, detailInput := range detailInputs {
+			if input.ID == uint(detailInput.IdInput) {
+				inputInformation = append(inputInformation, detailInput.InputInformation)
+			}
+		}
+		inputMaster = append(inputMaster, InputMaster{
+			ID:               input.ID,
+			NoInput:          input.NoInput,
+			DateInput:        input.DateInput,
+			StatusInput:      input.StatusInput,
+			InputInformation: inputInformation,
+		})
+	}
+	// if no input found, return an error
+	if len(inputMaster) == 0 {
+		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Inputs not found", "data": nil})
+	}
+	// return inputs
+	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Inputs Found", "data": inputMaster})
+}

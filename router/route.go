@@ -46,6 +46,10 @@ func SetupRoutes(app *fiber.App) {
 	input.Put("/:id", handler.UpdateInput)
 	input.Delete("/:id", handler.DeleteInput)
 
+	master := api.Group("/master")
+	master.Get("/input", handler.GetInputMaster)
+	master.Get("/output", handler.GetOutputMaster)
+
 	// detail input
 	detailInput := api.Group("/detail-input")
 	// routes
