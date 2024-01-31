@@ -12,6 +12,7 @@ type User struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 	Level    int    `json:"level"`
+	Status   int    `json:"status"`
 }
 
 // Users struct

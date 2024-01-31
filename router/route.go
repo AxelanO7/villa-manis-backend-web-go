@@ -12,7 +12,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// account
 	account := api.Group("/account")
-	// routes
 	account.Get("/", handler.GetAllAccounts)
 	account.Get("/:id", handler.GetSingleAccount)
 	account.Post("/", handler.CreateAccount)
@@ -21,7 +20,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// category
 	category := api.Group("/category")
-	// routes
 	category.Get("/", handler.GetAllCategories)
 	category.Get("/:id", handler.GetSingleCategory)
 	category.Post("/", handler.CreateCategory)
@@ -30,7 +28,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// user
 	user := api.Group("/user")
-	// routes
 	user.Get("/", handler.GetAllUsers)
 	user.Get("/:id", handler.GetSingleUser)
 	user.Post("/", handler.CreateUser)
@@ -39,7 +36,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// input
 	input := api.Group("/input")
-	// routes
 	input.Get("/", handler.GetAllInputs)
 	input.Get("/:id", handler.GetSingleInput)
 	input.Post("/", handler.CreateInput)
@@ -52,7 +48,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// detail input
 	detailInput := api.Group("/detail-input")
-	// routes
 	detailInput.Get("/", handler.GetAllDetailInputs)
 	detailInput.Get("/:id", handler.GetSingleDetailInput)
 	detailInput.Post("/", handler.CreateDetailInput)
@@ -67,7 +62,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// output
 	output := api.Group("/output")
-	// routes
 	output.Get("/", handler.GetAllOutputs)
 	output.Get("/:id", handler.GetSingleOutput)
 	output.Post("/", handler.CreateOutput)
@@ -76,7 +70,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// detail output
 	detailOutput := api.Group("/detail-output")
-	// routes
 	detailOutput.Get("/", handler.GetAllDetailOutputs)
 	detailOutput.Get("/:id", handler.GetSingleDetailOutput)
 	detailOutput.Post("/", handler.CreateDetailOutput)
@@ -91,21 +84,14 @@ func SetupRoutes(app *fiber.App) {
 
 	// general journal
 	generalJournal := api.Group("/general-journal")
-	// routes
 	generalJournal.Get("/", handler.GetAllGeneralJournals)
 	generalJournal.Get("/:id", handler.GetSingleGeneralJournal)
 	generalJournal.Post("/", handler.CreateGeneralJournal)
 	generalJournal.Put("/:id", handler.UpdateGeneralJournal)
 	generalJournal.Delete("/:id", handler.DeleteGeneralJournal)
 
-	// login
-	login := api.Group("/login")
-	// routes
-	login.Post("/", handler.Login)
-
 	// transaction
 	transaction := api.Group("/transaction")
-	// routes
 	transaction.Get("/", handler.GetTransactions)
 	transaction.Get("/group", handler.GetTransactionGroupByAccount)
 	transaction.Get("/date/filter", handler.GetTransactionFilterByDate)
@@ -114,4 +100,16 @@ func SetupRoutes(app *fiber.App) {
 	transaction.Get("/cash-flow", handler.GetCashFlow)
 	transaction.Get("/profit-loss", handler.GetProfitLoss)
 	transaction.Get("/capital-change", handler.GetCapitalChange)
+
+	// login
+	login := api.Group("/login")
+	login.Post("/", handler.Login)
+
+	// logout
+	logout := api.Group("/logout")
+	logout.Post("/", handler.Logout)
+
+	// user login
+	userLogin := api.Group("/user-login")
+	userLogin.Get("/", handler.GetLogedUser)
 }
