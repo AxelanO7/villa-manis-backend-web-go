@@ -871,7 +871,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 	startDate := c.Query("start_date")
 	endDate := c.Query("end_date")
 
-	listIncome := []string{"Kas", "Pendapatan Usaha"}
+	// listIncome := []string{"Kas", "Pendapatan Usaha"}
 	// listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	if startDate == "" || endDate == "" {
@@ -924,7 +924,8 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		FindCategoryByID(fmt.Sprint(account.IdCategory), category)
 		account.Category = *category
 
-		if slices.Contains(listIncome, account.NameAccount) {
+		// if slices.Contains(listIncome, account.NameAccount) {
+		if account.Category.NameCategory != "Beban" {
 			profitLoss.Income = append(profitLoss.Income, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
@@ -993,7 +994,7 @@ func GetCapitalChange(c *fiber.Ctx) error {
 	detailOutputs := []model.DetailOutput{}
 
 	listIncome := []string{"Kas", "Pendapatan Usaha"}
-	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas", "Beban Listrik"}
+	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
 
 	accounts := []model.Account{}
 
