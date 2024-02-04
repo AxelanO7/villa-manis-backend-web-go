@@ -1081,6 +1081,9 @@ func GetCapitalChange(c *fiber.Ctx) error {
 		}
 		// assign account to detail input
 		detailOutput.Account = *accountDetailOutput
+		if detailOutput.Account.NameAccount == "Modal Awal" {
+			beginningCapital -= detailOutput.TotalPrice
+		}
 		if detailOutput.Account.NameAccount == "Prive" {
 			prive -= detailOutput.TotalPrice
 		}
