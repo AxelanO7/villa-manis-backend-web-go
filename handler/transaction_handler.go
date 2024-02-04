@@ -414,7 +414,6 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
 			detailInput.InputDate,
 		)) {
-			fmt.Println("input date search ", detailInput.InputDate)
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
 				detailInput.InputDate,
 			))
@@ -426,7 +425,6 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
 			detailOutput.OutputDate,
 		)) {
-			fmt.Println("output date search ", detailOutput.OutputDate)
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
 				detailOutput.OutputDate,
 			))
@@ -442,9 +440,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			DetailOutput: []model.DetailOutput{},
 		}
 		for _, detailInput := range detailInputs {
-			fmt.Println("input date each ", detailInput.InputDate)
 			if fmt.Sprint(detailInput.InputDate) == groupDate.Date {
-				fmt.Println("input date ", detailInput.InputDate)
 
 				category := new(model.Category)
 				account := new(model.Account)
@@ -481,9 +477,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			}
 		}
 		for _, detailOutput := range detailOutputs {
-			fmt.Println("output date each ", detailOutput.OutputDate)
 			if fmt.Sprint(detailOutput.OutputDate) == groupDate.Date {
-				fmt.Println("output date ", detailOutput.OutputDate)
 
 				category := new(model.Category)
 				account := new(model.Account)
@@ -796,7 +790,6 @@ func GetCashFlow(c *fiber.Ctx) error {
 		detailInput.Account = *accountDetailInput
 
 		if detailInput.Account.NameAccount == "Modal Awal" {
-			fmt.Println("detailInput.TotalPrice", detailInput.TotalPrice)
 			begining += detailInput.TotalPrice
 		}
 
@@ -824,7 +817,6 @@ func GetCashFlow(c *fiber.Ctx) error {
 		detailOutput.Account = *accountDetailOutput
 
 		if detailOutput.Account.NameAccount == "Modal Awal" {
-			fmt.Println("detailOutput.TotalPrice", detailOutput.TotalPrice)
 			begining -= detailOutput.TotalPrice
 		}
 
@@ -932,9 +924,7 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		FindCategoryByID(fmt.Sprint(account.IdCategory), category)
 		account.Category = *category
 
-		fmt.Println("accounts ", account.NameAccount)
 		if slices.Contains(listIncome, account.NameAccount) {
-			fmt.Println("incomes ", account.NameAccount)
 			profitLoss.Income = append(profitLoss.Income, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
@@ -943,7 +933,6 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		}
 		// if slices.Contains(listBurden, account.NameAccount) {
 		if account.Category.NameCategory == "Beban" {
-			fmt.Println("burdens ", account.NameAccount)
 			profitLoss.Burden = append(profitLoss.Burden, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
@@ -951,9 +940,6 @@ func GetProfitLoss(c *fiber.Ctx) error {
 			})
 		}
 	}
-
-	fmt.Println("profitLoss ", profitLoss.Income)
-	fmt.Println("profitLoss ", profitLoss.Burden)
 
 	for _, detailInput := range detailInputs {
 		accountDetailInput := new(model.Account)
@@ -1007,7 +993,7 @@ func GetCapitalChange(c *fiber.Ctx) error {
 	detailOutputs := []model.DetailOutput{}
 
 	listIncome := []string{"Kas", "Pendapatan Usaha"}
-	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas"}
+	listBurden := []string{"Beban Gaji", "Beban Perlengkapan", "Beban Listrik", "Beban Iklan", "Beban Asuransi", "Beban Pemeliharaan Peralatan", "Beban Penyusutan Peralatan", "Beban Lain-lain, Kas", "Beban Listrik"}
 
 	accounts := []model.Account{}
 
