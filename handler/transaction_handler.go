@@ -412,10 +412,10 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	// find all date in detail input
 	for _, detailInput := range detailInputs {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
-			time.Time(detailInput.CreatedAt).Format("2006-01-02"),
+			detailInput.InputDate,
 		)) {
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
-				time.Time(detailInput.CreatedAt).Format("2006-01-02"),
+				detailInput.InputDate,
 			))
 
 		}
@@ -423,10 +423,10 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	// find all date in detail output
 	for _, detailOutput := range detailOutputs {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
-			time.Time(detailOutput.CreatedAt).Format("2006-01-02"),
+			detailOutput.OutputDate,
 		)) {
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
-				time.Time(detailOutput.CreatedAt).Format("2006-01-02"),
+				detailOutput.OutputDate,
 			))
 		}
 	}
