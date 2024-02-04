@@ -552,13 +552,24 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 	dateStart := c.Query("date-start")
 	dateEnd := c.Query("date-end")
 
-	// find all detail input in the database
-	if err := db.Find(&detailInput, "input_date BETWEEN ? AND ?", dateStart, dateEnd).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+	if dateStart == "" || dateEnd == "" {
+		// find all detail input in the database
+		if err := db.Find(&detailInput).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutput).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
 	}
-	// find all detail output in the database
-	if err := db.Find(&detailOutput, "output_date BETWEEN ? AND ?", dateStart, dateEnd).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+	if dateStart != "" && dateEnd != "" {
+		if err := db.Find(&detailInput, "input_date BETWEEN ? AND ?", dateStart, dateEnd).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
+		}
+		// find all detail output in the database
+		if err := db.Find(&detailOutput, "output_date BETWEEN ? AND ?", dateStart, dateEnd).Error; err != nil {
+			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
+		}
 	}
 	// if no detail input & output found, return an error
 	if len(*detailInput) == 0 && len(*detailOutput) == 0 {
