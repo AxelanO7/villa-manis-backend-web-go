@@ -679,8 +679,9 @@ func GetCashFlow(c *fiber.Ctx) error {
 	}
 
 	type CashFlow struct {
-		Group []Group `json:"groups"`
-		Total float64 `json:"totals"`
+		Begining float64 `json:"begining"`
+		Group    []Group `json:"groups"`
+		Total    float64 `json:"totals"`
 	}
 
 	db := database.DB.Db
@@ -780,6 +781,8 @@ func GetCashFlow(c *fiber.Ctx) error {
 		}
 	}
 
+	begining := 0
+
 	for _, detailInput := range detailInputs {
 		accountDetailInput := new(model.Account)
 		// convert id to string
@@ -791,6 +794,11 @@ func GetCashFlow(c *fiber.Ctx) error {
 		}
 		// assign account to detail input
 		detailInput.Account = *accountDetailInput
+
+		if detailInput.Account.NameAccount == "Modal Awal" {
+			begining += detailInput.TotalPrice
+		}
+
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailInput.Account.NameAccount == account.NameAccount {
@@ -813,6 +821,11 @@ func GetCashFlow(c *fiber.Ctx) error {
 		}
 		// assign account to detail input
 		detailOutput.Account = *accountDetailOutput
+
+		if detailOutput.Account.NameAccount == "Modal Awal" {
+			begining -= detailOutput.TotalPrice
+		}
+
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailOutput.Account.NameAccount == account.NameAccount {
@@ -826,6 +839,9 @@ func GetCashFlow(c *fiber.Ctx) error {
 			}
 		}
 	}
+
+	cashFlow.Begining = float64(begining)
+
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Cash Flow Found", "data": cashFlow})
 }
 
