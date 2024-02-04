@@ -584,7 +584,12 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 
 	for i := 0; i < len(*detailInput); i++ {
 		for j := 1; j <= 12; j++ {
-			if time.Time((*detailInput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailInput)[i].CreatedAt).Year() == time.Now().Year() {
+			// if time.Time((*detailInput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailInput)[i].CreatedAt).Year() == time.Now().Year() {
+			parsedInputDate, err := time.Parse("2006-01-02", (*detailInput)[i].InputDate)
+			if err != nil {
+				// handle the error, e.g. return an error response
+			}
+			if parsedInputDate.Month() == time.Month(j) && parsedInputDate.Year() == time.Now().Year() {
 				switch j {
 				case 1:
 					totalDebitMonth.January += float32((*detailInput)[i].TotalPrice)
@@ -619,7 +624,12 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 	}
 	for i := 0; i < len(*detailOutput); i++ {
 		for j := 1; j <= 12; j++ {
-			if time.Time((*detailOutput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailOutput)[i].CreatedAt).Year() == time.Now().Year() {
+			// if time.Time((*detailOutput)[i].CreatedAt).Month() == time.Month(j) && time.Time((*detailOutput)[i].CreatedAt).Year() == time.Now().Year() {
+			parsedOutputDate, err := time.Parse("2006-01-02", (*detailOutput)[i].OutputDate)
+			if err != nil {
+				// handle the error, e.g. return an error response
+			}
+			if parsedOutputDate.Month() == time.Month(j) && parsedOutputDate.Year() == time.Now().Year() {
 				switch j {
 				case 1:
 					totalCreditMonth.January += float32((*detailOutput)[i].TotalPrice)
