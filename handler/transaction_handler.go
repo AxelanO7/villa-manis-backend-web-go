@@ -796,6 +796,7 @@ func GetCashFlow(c *fiber.Ctx) error {
 		detailInput.Account = *accountDetailInput
 
 		if detailInput.Account.NameAccount == "Modal Awal" {
+			fmt.Println("detailInput.TotalPrice", detailInput.TotalPrice)
 			begining += detailInput.TotalPrice
 		}
 
@@ -823,6 +824,7 @@ func GetCashFlow(c *fiber.Ctx) error {
 		detailOutput.Account = *accountDetailOutput
 
 		if detailOutput.Account.NameAccount == "Modal Awal" {
+			fmt.Println("detailOutput.TotalPrice", detailOutput.TotalPrice)
 			begining -= detailOutput.TotalPrice
 		}
 
