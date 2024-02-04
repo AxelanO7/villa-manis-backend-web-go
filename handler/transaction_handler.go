@@ -816,9 +816,12 @@ func GetCashFlow(c *fiber.Ctx) error {
 		for i, group := range groups {
 			for j, account := range group.Accounts {
 				if detailOutput.Account.NameAccount == account.NameAccount {
-					groups[i].Accounts[j].TotalAccount -= float64(detailOutput.TotalPrice)
-					groups[i].TotalGroup -= float64(detailOutput.TotalPrice)
-					cashFlow.Total -= float64(detailOutput.TotalPrice)
+					groups[i].Accounts[j].TotalAccount += float64(detailOutput.TotalPrice)
+					groups[i].TotalGroup += float64(detailOutput.TotalPrice)
+					cashFlow.Total += float64(detailOutput.TotalPrice)
+					// groups[i].Accounts[j].TotalAccount -= float64(detailOutput.TotalPrice)
+					// groups[i].TotalGroup -= float64(detailOutput.TotalPrice)
+					// cashFlow.Total -= float64(detailOutput.TotalPrice)
 				}
 			}
 		}
