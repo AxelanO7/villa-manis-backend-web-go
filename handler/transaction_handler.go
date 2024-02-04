@@ -440,7 +440,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			DetailOutput: []model.DetailOutput{},
 		}
 		for _, detailInput := range detailInputs {
-			if fmt.Sprint(time.Time(detailInput.CreatedAt).Format("2006-01-02")) == groupDate.Date {
+			if fmt.Sprint(detailInput.InputDate) == groupDate.Date {
 
 				category := new(model.Category)
 				account := new(model.Account)
@@ -477,7 +477,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			}
 		}
 		for _, detailOutput := range detailOutputs {
-			if fmt.Sprint(time.Time(detailOutput.CreatedAt).Format("2006-01-02")) == groupDate.Date {
+			if fmt.Sprint(detailOutput.OutputDate) == groupDate.Date {
 
 				category := new(model.Category)
 				account := new(model.Account)
