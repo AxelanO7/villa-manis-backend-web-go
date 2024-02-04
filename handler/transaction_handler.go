@@ -618,8 +618,8 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 				default:
 					totalDebitMonth.January += float32((*detailInput)[i].TotalPrice)
 				}
+				totalDebit += (*detailInput)[i].TotalPrice
 			}
-			totalDebit += (*detailInput)[i].TotalPrice
 		}
 	}
 	for i := 0; i < len(*detailOutput); i++ {
@@ -658,8 +658,8 @@ func GetTotalTransaction(c *fiber.Ctx) error {
 				default:
 					totalCreditMonth.January += float32((*detailOutput)[i].TotalPrice)
 				}
+				totalCredit += (*detailOutput)[i].TotalPrice
 			}
-			totalCredit += (*detailOutput)[i].TotalPrice
 		}
 	}
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Detail Input & Output Found", "data": fiber.Map{"total_debit": totalDebit, "total_credit": totalCredit,
