@@ -400,11 +400,11 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 	}
 	if startDate != "" && endDate != "" {
 		// find all detail input in the database by date
-		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
+		if err := db.Find(&detailInputs, "input_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Input not found", "data": nil})
 		}
 		// find all detail output in the database by date
-		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate+" 00:00:00", endDate+" 23:59:59").Error; err != nil {
+		if err := db.Find(&detailOutputs, "output_date BETWEEN ? AND ?", startDate, endDate).Error; err != nil {
 			return c.Status(404).JSON(fiber.Map{"status": "error", "message": "Detail Output not found", "data": nil})
 		}
 	}
@@ -414,6 +414,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
 			detailInput.InputDate,
 		)) {
+			fmt.Println("input date search ", detailInput.InputDate)
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
 				detailInput.InputDate,
 			))
@@ -425,6 +426,7 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 		if !slices.Contains(groupDatesStrings, fmt.Sprint(
 			detailOutput.OutputDate,
 		)) {
+			fmt.Println("output date search ", detailOutput.OutputDate)
 			groupDatesStrings = append(groupDatesStrings, fmt.Sprint(
 				detailOutput.OutputDate,
 			))
@@ -440,7 +442,9 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			DetailOutput: []model.DetailOutput{},
 		}
 		for _, detailInput := range detailInputs {
+			fmt.Println("input date each ", detailInput.InputDate)
 			if fmt.Sprint(detailInput.InputDate) == groupDate.Date {
+				fmt.Println("input date ", detailInput.InputDate)
 
 				category := new(model.Category)
 				account := new(model.Account)
@@ -477,7 +481,9 @@ func GetTransactionGroupByDate(c *fiber.Ctx) error {
 			}
 		}
 		for _, detailOutput := range detailOutputs {
+			fmt.Println("output date each ", detailOutput.OutputDate)
 			if fmt.Sprint(detailOutput.OutputDate) == groupDate.Date {
+				fmt.Println("output date ", detailOutput.OutputDate)
 
 				category := new(model.Category)
 				account := new(model.Account)
