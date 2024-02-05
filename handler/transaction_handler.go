@@ -834,7 +834,9 @@ func GetCashFlow(c *fiber.Ctx) error {
 		}
 	}
 
-	cashFlow.Begining = float64(begining)
+	cashFlow.Begining = 10000000
+	cashFlow.Total = cashFlow.Begining - cashFlow.Group[0].TotalGroup + cashFlow.Group[2].TotalGroup
+	//float64(begining)
 
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Cash Flow Found", "data": cashFlow})
 }
