@@ -919,13 +919,19 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		},
 	}
 
+	exception := []string{
+		"Modal Awal",
+		"Pengambilan Prive",
+		"Penambahan Modal",
+	}
+
 	for _, account := range accounts {
 		category := new(model.Category)
 		FindCategoryByID(fmt.Sprint(account.IdCategory), category)
 		account.Category = *category
 
 		// if slices.Contains(listIncome, account.NameAccount) {
-		if account.Category.NameCategory != "Beban" {
+		if account.Category.NameCategory != "Beban" && !slices.Contains(exception, account.NameAccount) {
 			{
 				profitLoss.Income = append(profitLoss.Income, Item{
 					Name:   account.NameAccount,
