@@ -925,7 +925,8 @@ func GetProfitLoss(c *fiber.Ctx) error {
 		account.Category = *category
 
 		// if slices.Contains(listIncome, account.NameAccount) {
-		if account.Category.NameCategory != "Beban" {
+		if account.Category.NameCategory != "Beban" && account.NameAccount != "Modal Awal" && account.NameAccount != "Perubahan Modal" && account.NameAccount != "Penambahan Modal" {
+		 {
 			profitLoss.Income = append(profitLoss.Income, Item{
 				Name:   account.NameAccount,
 				Credit: 0,
@@ -981,7 +982,6 @@ func GetProfitLoss(c *fiber.Ctx) error {
 			}
 		}
 	}
-
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Profit Loss Found", "data": profitLoss})
 }
 
