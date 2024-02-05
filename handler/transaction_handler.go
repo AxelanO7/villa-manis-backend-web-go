@@ -262,8 +262,7 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 		}
 	}
 
-	isAddedTotalDebitFromModal := false
-	isAddedTotalCreditFromModal := false
+	isAddedTotalAccountFromModal := false
 
 	for _, typeCategory := range typeCategories {
 		groupCategory := GroupCategory{}
@@ -278,6 +277,13 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 				groupAccount.Credit = 0
 				groupAccount.DetailInput = []model.DetailInput{}
 				groupAccount.DetailOutput = []model.DetailOutput{}
+				if typeAccount.NameAccount == "Modal Awal" && !isAddedTotalAccountFromModal {
+					groupAccount.Debit = 10000000
+					groupAccount.Credit = 10000000
+					groupCategory.TotalDebit += 10000000
+					groupCategory.TotalCredit += 10000000
+					isAddedTotalAccountFromModal = true
+				}
 				for _, detailInput := range detailInputs {
 					if detailInput.IdAccount == int(typeAccount.ID) && detailInput.IdCategory == int(typeCategory.ID) {
 						category := new(model.Category)
@@ -313,11 +319,11 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 							groupAccount.Debit += float64(detailInput.TotalPrice)
 							groupCategory.TotalDebit += float64(detailInput.TotalPrice)
 						}
-						if detailInput.Account.NameAccount == "Modal Awal" && !isAddedTotalDebitFromModal {
-							groupAccount.Debit = 10000000
-							groupCategory.TotalDebit += 10000000
-							isAddedTotalDebitFromModal = true
-						}
+						// if detailInput.Account.NameAccount == "Modal Awal" && !isAddedTotalDebitFromModal {
+						// 	groupAccount.Debit = 10000000
+						// 	groupCategory.TotalDebit += 10000000
+						// 	isAddedTotalDebitFromModal = true
+						// }
 						groupAccount.DetailInput = append(groupAccount.DetailInput, detailInput)
 					}
 				}
@@ -356,11 +362,11 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 							groupAccount.Credit += float64(detailOutput.TotalPrice)
 							groupCategory.TotalCredit += float64(detailOutput.TotalPrice)
 						}
-						if detailOutput.Account.NameAccount == "Modal Awal" && !isAddedTotalCreditFromModal {
-							groupAccount.Credit = 10000000
-							groupCategory.TotalCredit += 10000000
-							isAddedTotalCreditFromModal = true
-						}
+						// if detailOutput.Account.NameAccount == "Modal Awal" && !isAddedTotalCreditFromModal {
+						// 	groupAccount.Credit = 10000000
+						// 	groupCategory.TotalCredit += 10000000
+						// 	isAddedTotalCreditFromModal = true
+						// }
 						groupAccount.DetailOutput = append(groupAccount.DetailOutput, detailOutput)
 					}
 				}
