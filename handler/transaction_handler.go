@@ -262,6 +262,9 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 		}
 	}
 
+	isAddedTotalDebitFromModal := false
+	isAddedTotalCreditFromModal := false
+
 	for _, typeCategory := range typeCategories {
 		groupCategory := GroupCategory{}
 		groupCategory.NamaCategory = typeCategory.NameCategory
@@ -310,6 +313,11 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 							groupAccount.Debit += float64(detailInput.TotalPrice)
 							groupCategory.TotalDebit += float64(detailInput.TotalPrice)
 						}
+						if detailInput.Account.NameAccount == "Modal Awal" && !isAddedTotalDebitFromModal {
+							groupAccount.Debit = 10000000
+							groupCategory.TotalDebit += 10000000
+							isAddedTotalDebitFromModal = true
+						}
 						groupAccount.DetailInput = append(groupAccount.DetailInput, detailInput)
 					}
 				}
@@ -347,6 +355,11 @@ func GetTransactionGroupByAccount(c *fiber.Ctx) error {
 						if detailOutput.IdCategory == int(typeCategory.ID) && detailOutput.IdAccount == int(typeAccount.ID) {
 							groupAccount.Credit += float64(detailOutput.TotalPrice)
 							groupCategory.TotalCredit += float64(detailOutput.TotalPrice)
+						}
+						if detailOutput.Account.NameAccount == "Modal Awal" && !isAddedTotalCreditFromModal {
+							groupAccount.Credit = 10000000
+							groupCategory.TotalCredit += 10000000
+							isAddedTotalCreditFromModal = true
 						}
 						groupAccount.DetailOutput = append(groupAccount.DetailOutput, detailOutput)
 					}
@@ -1124,6 +1137,7 @@ func GetCapitalChange(c *fiber.Ctx) error {
 			}
 		}
 	}
-	endCapital = beginningCapital + netIncome + addCapital - prive
+	beginningCapital = 10000000
+	endCapital = beginningCapital + netIncome // + addCapital - prive
 	return c.Status(200).JSON(fiber.Map{"status": "sucess", "message": "Capital Change Found", "data": fiber.Map{"beginning_capital": beginningCapital, "net_income": netIncome, "prive": prive, "additional_capital": addCapital, "end_capital": endCapital}})
 }
